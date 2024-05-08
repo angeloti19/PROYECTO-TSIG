@@ -1,0 +1,40 @@
+body{
+  font-family: 'Lexend', sans-serif;
+  font-weight: normal;
+  margin: 0;
+  font-size: 16px;
+  overflow: hidden;
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#app{
+  height: 100%;
+}
+
+.boton{
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.457);
+  border-radius: 20px;
+  padding: 5px 15px 5px 15px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+
+}
+.boton:hover{
+  background-color: rgba(0, 0, 0, 0.100);
+}
+.boton:active{
+  background-color: rgba(0, 0, 0, 0.200);
+}
