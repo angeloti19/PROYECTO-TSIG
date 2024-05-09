@@ -86,10 +86,17 @@ export default{
                 return true
             }
             return false
-        }
+        },
+        
     },
     computed:{
-        
+        obtenerColorUsuario(){
+            if(this.store.tipoUsuario == "anonimo"){
+                return "#26A099"
+            }else{
+                return "#FF3A69"
+            }
+        }
     }
 }
 </script>
@@ -98,7 +105,7 @@ export default{
 
 
 <template>
-    <div class="base">
+    <div class="base" :style="{ 'background-color': obtenerColorUsuario}">
         <div class="seccion-contenido">
             <div class="title-bar">
                 <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
@@ -116,10 +123,10 @@ export default{
             <BienvenidaSeccion v-if="store.seccionActual == 'bienvenida'"/>
             
         </div>
-        <div class="side-bar">
+        <div class="side-bar" >
             <v-layout>
                 <v-navigation-drawer
-                style="border-left-width: 2px; border-left-color: rgba(255, 255, 255, 0.466);" color="#26A099"
+                style="border-left-width: 2px; border-left-color: rgba(255, 255, 255, 0.466);" :color="obtenerColorUsuario"
                     location="right" rail permanent>
                     <v-list v-model="store.seccionActual" density="compact" nav>
                         <template v-for="seccion in secciones">

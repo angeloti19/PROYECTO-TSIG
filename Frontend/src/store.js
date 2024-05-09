@@ -18,9 +18,6 @@ export const store = reactive({
   tipoUsuario: undefined,
   //Panel
   seccionActual: 'bienvenida',
-  increment() {
-    this.count++
-  },
   usarUbicacion(){
     if (this.currentGeolocation.length == 0){
         alert("Permita acceso a su ubicación para utilizar geolocalización.")

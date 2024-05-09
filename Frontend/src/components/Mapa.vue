@@ -1,9 +1,16 @@
 <script>
 import { store } from '../store.js'
+import BotonCircular from './BotonCircular.vue';
+import logo from './icons/logo.vue';
+import poligono from './icons/poligono.vue'
+import ubicacion from './icons/ubicacion.vue'
 
 export default{
     name: 'mapa',
     components: {
+        BotonCircular,
+        poligono,
+        ubicacion
     },
     data(){
         return{
@@ -12,6 +19,7 @@ export default{
             projectionDef: '+proj=utm +zone=21 +south +datum=WGS84 +units=m +no_defs +type=crs',
             projectionExtent: [166021.44, 1116915.04, 833978.56, 10000000.0],
             anchor: [0.517, 150],
+            abab: "red"
         }
     },
     methods:{
@@ -43,6 +51,15 @@ export default{
     },
     mounted(){
         store.viewReference = this.$refs.view
+    },
+    computed:{
+        obtenerColorUsuario(){
+            if(this.store.tipoUsuario == "anonimo"){
+                return "#26A099"
+            }else{
+                return "#FF3A69"
+            }
+        }
     }
 }
 
@@ -56,6 +73,29 @@ export default{
             :projectionExtent="projectionExtent"
             
         />
+
+        <!-- Div overlay -->
+        <div class="overlay">
+            <div class="barra-y-boton">
+                <div style="height: 20px;">
+                    <v-expansion-panels>
+                    <v-expansion-panel
+                        title="Cambiar punto de solicitud"
+                        style="width: 275px;"
+                    >
+                    <v-expansion-panel-text>
+                        Aqui se cambiaria el punto de solicitud por direccion o cruce
+                    </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+                </div>
+
+                <BotonCircular @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario"><ubicacion/></BotonCircular>
+            </div>
+
+            <BotonCircular class="boton-poligono" :color="obtenerColorUsuario"><poligono/></BotonCircular>
+        </div>
+
       <ol-view
         ref="view"
         :center="store.center"
@@ -128,13 +168,17 @@ export default{
           @drawstart="drawstart"
         >
         </ol-interaction-draw>
+
+        
     </ol-map>
+
     
+
   </template>
   
 
   
-  <style scoped>
+  <style >
   .ol-map {
     position: relative;
   }
@@ -159,5 +203,54 @@ export default{
       transform: rotate(360deg);
     }
   }
+
+  .ol-zoom {
+     left: 8px;
+     right: auto;
+     top: auto !important;
+     bottom: 8px;
+  }
+
+  .ol-zoom-in {
+     background-color: v-bind(obtenerColorUsuario)!important;
+     color: white !important;
+  }
+
+  .ol-zoom-out {
+     background-color: v-bind(obtenerColorUsuario)!important;
+     color: white !important;
+  }
+
+  .overlay{
+    position: absolute;
+    z-index:10000;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .boton-poligono{
+    margin: 10px;
+  }
+
+  .boton-ubicacion{
+    margin-left: 10px;
+    margin-top: 3px;
+  }
+
+  .barra-y-boton{
+    display: flex;
+    margin-top:  10px;
+    margin-left: 10px;
+
+  }
+
+  .barra-solicitud{
+    height: 20px;
+    width: 70px;
+    border-radius: 50%;
+    background-color: white;
+  }
+
 
   </style>
