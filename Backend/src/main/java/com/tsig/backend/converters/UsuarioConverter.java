@@ -17,7 +17,6 @@ public class UsuarioConverter {
 
         usuario.setId(userDto.getId());
         usuario.setNombre(userDto.getNombre());
-        usuario.setUsuario(userDto.getUsuario());
         usuario.setCorreo(userDto.getCorreo());
         usuario.setContrasenia(userDto.getContrasenia());
         return usuario;
@@ -28,7 +27,6 @@ public class UsuarioConverter {
 
         usuarioDto.setId(usuario.getId());
         usuarioDto.setNombre(usuario.getNombre());
-        usuarioDto.setUsuario(usuario.getUsuario());
         usuarioDto.setCorreo(usuario.getCorreo());
         usuarioDto.setContrasenia(usuario.getContrasenia());
 

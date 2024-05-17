@@ -7,6 +7,7 @@ import java.security.KeyStore.PasswordProtection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import com.tsig.backend.exceptions.UsuarioException;
 import com.tsig.backend.models.UsuarioModel;
 import com.tsig.backend.services.UsuarioService;
 
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 @RequestMapping("/api/usuario")
 public class UsuarioController {
@@ -44,7 +46,7 @@ public class UsuarioController {
             return ResponseEntity.ok(userService.guardarUsuario(usuario));
 
         } catch (UsuarioException u) {
-            return new ResponseEntity(u.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(u.getMessage(), HttpStatus.BAD_REQUEST);
         }
         catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
