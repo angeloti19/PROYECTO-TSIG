@@ -3,8 +3,8 @@ package com.tsig.backend.converters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.tsig.backend.dto.UsuarioDto;
-import com.tsig.backend.models.UsuarioModel;
+import com.tsig.backend.datatypes.DtUsuario;
+import com.tsig.backend.entities.Usuario;
 
 @Component
 public class UsuarioConverter {
@@ -12,8 +12,8 @@ public class UsuarioConverter {
     @Autowired
     public UsuarioConverter(){}
 
-    public UsuarioModel toModel(UsuarioDto userDto){
-        UsuarioModel usuario = new UsuarioModel();
+    public Usuario toModel(DtUsuario userDto){
+        Usuario usuario = new Usuario();
 
         usuario.setId(userDto.getId());
         usuario.setNombre(userDto.getNombre());
@@ -22,8 +22,8 @@ public class UsuarioConverter {
         return usuario;
     }
 
-    public UsuarioDto toDto(UsuarioModel usuario){
-        UsuarioDto usuarioDto = new UsuarioDto();
+    public DtUsuario toDto(Usuario usuario){
+        DtUsuario usuarioDto = new DtUsuario();
 
         usuarioDto.setId(usuario.getId());
         usuarioDto.setNombre(usuario.getNombre());

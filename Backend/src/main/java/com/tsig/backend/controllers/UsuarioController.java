@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tsig.backend.entities.Usuario;
 import com.tsig.backend.exceptions.UsuarioException;
-import com.tsig.backend.models.UsuarioModel;
 import com.tsig.backend.services.UsuarioService;
 
 @CrossOrigin(origins = "http://localhost:5173/")
@@ -40,7 +40,7 @@ public class UsuarioController {
     }
     
     @PostMapping
-    public ResponseEntity<?> guardarUsuario(@RequestBody UsuarioModel usuario) throws UsuarioException, Exception{
+    public ResponseEntity<?> guardarUsuario(@RequestBody Usuario usuario) throws UsuarioException, Exception{
         
         try {
             return ResponseEntity.ok(userService.guardarUsuario(usuario));

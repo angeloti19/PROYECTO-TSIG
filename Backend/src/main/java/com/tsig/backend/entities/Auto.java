@@ -1,4 +1,4 @@
-package com.tsig.backend.models;
+package com.tsig.backend.entities;
 import java.util.List;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -12,7 +12,7 @@ import jakarta.persistence.*;
 @Data
 @Entity
 @Table(name = "auto")
-public class AutoModel {
+public class Auto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

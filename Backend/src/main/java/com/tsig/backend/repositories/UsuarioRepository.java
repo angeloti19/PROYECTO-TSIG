@@ -2,10 +2,10 @@ package com.tsig.backend.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tsig.backend.models.UsuarioModel;
+import com.tsig.backend.entities.Usuario;
 
-public interface UsuarioRepository extends JpaRepository<UsuarioModel, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    UsuarioModel findByCorreoOrUsuario(String correo, String usuario);
+    Usuario findByCorreoOrUsuario(String correo, String usuario);
     
 }

@@ -1,10 +1,10 @@
-package com.tsig.backend.dto;
+package com.tsig.backend.datatypes;
 
 import org.locationtech.jts.geom.LineString;
 import lombok.Data;
 
 @Data
-public class AutoDto {
+public class DtAuto {
 
     private Long id;
     private String matricula;

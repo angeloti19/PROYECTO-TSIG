@@ -2,10 +2,10 @@ package com.tsig.backend.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.tsig.backend.models.AutoModel;
+import com.tsig.backend.entities.Auto;
 
-public interface AutoRepository extends JpaRepository<AutoModel, Long> {
+public interface AutoRepository extends JpaRepository<Auto, Long> {
 
-    AutoModel findByMatricula(String matricula);
+    Auto findByMatricula(String matricula);
     
 }

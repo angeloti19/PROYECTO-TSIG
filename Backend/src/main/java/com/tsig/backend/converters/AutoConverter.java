@@ -1,14 +1,15 @@
 package com.tsig.backend.converters;
 
 import org.springframework.stereotype.Component;
-import com.tsig.backend.dto.AutoDto;
-import com.tsig.backend.models.AutoModel;
+
+import com.tsig.backend.datatypes.DtAuto;
+import com.tsig.backend.entities.Auto;
 
 @Component
 public class AutoConverter {
 
-    public AutoModel toModel(AutoDto autoDto) {
-        AutoModel auto = new AutoModel();
+    public Auto toModel(DtAuto autoDto) {
+        Auto auto = new Auto();
         auto.setMatricula(autoDto.getMatricula());
         auto.setDist_max(autoDto.getDist_max());
         auto.setRecorrido(autoDto.getRecorrido());
@@ -16,8 +17,8 @@ public class AutoConverter {
         return auto;
     }
 
-    public AutoDto toDto(AutoModel autoModel) {
-        AutoDto autoDto = new AutoDto();
+    public DtAuto toDto(Auto autoModel) {
+        DtAuto autoDto = new DtAuto();
 
         autoDto.setId(autoModel.getId());
         autoDto.setMatricula(autoModel.getMatricula());

@@ -1,4 +1,4 @@
-package com.tsig.backend.models;
+package com.tsig.backend.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 @Data
 @Entity
 @Table(name = "usuarios")
-public class UsuarioModel {
+public class Usuario {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,9 +18,6 @@ public class UsuarioModel {
 
     @Column(name = "nombre")
     private String nombre;
-
-    @Column(name = "usuario")
-    private String usuario;
 
     @Column(name = "correo")
     private String correo;
