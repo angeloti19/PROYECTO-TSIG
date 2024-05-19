@@ -1,5 +1,8 @@
 package com.tsig.backend.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -8,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.tsig.backend.converters.AutomotoraConverter;
+import com.tsig.backend.datatypes.DtAutomotora;
 import com.tsig.backend.datatypes.DtCreacionAutomotora;
 import com.tsig.backend.entities.Automotora;
 import com.tsig.backend.entities.Sucursal;
@@ -19,6 +24,20 @@ public class AutomotoraService {
     
     @Autowired
     AutomotoraRepository automotoraRepository;
+
+    @Autowired
+    AutomotoraConverter automotoraConverter;
+
+    public List<DtAutomotora> obtenerDtAutomotoras() throws AutomotoraException{
+        List<Automotora> automotoras = automotoraRepository.findAll();
+        List<DtAutomotora> dtAutomotoras = new ArrayList<DtAutomotora>();
+        
+        for(Automotora automotora: automotoras){
+            dtAutomotoras.add(automotoraConverter.toDt(automotora));
+        }
+        
+        return dtAutomotoras;
+    } 
 
     public ResponseEntity<?> crearAutomotora(DtCreacionAutomotora dtCreacionAutomotora) throws AutomotoraException{
 

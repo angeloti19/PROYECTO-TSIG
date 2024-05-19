@@ -3,6 +3,7 @@ package com.tsig.backend.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,14 +21,23 @@ public class SucursalController {
 
     @Autowired
     SucursalService sucursalService;
+
+    @GetMapping
+    public ResponseEntity<?> listarSucursal (@PathVariable("atmId") Long atmId) throws SucursalException, Exception{
+        try {
+            return ResponseEntity.ok(sucursalService.listarSucursales(atmId));
+        }catch (SucursalException s) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
     
     @PostMapping
     public ResponseEntity<?> crearSucursal(@PathVariable("atmId") Long atmId, @RequestBody  DtCreacionSucursal dtCreacionSucursal) throws SucursalException, Exception{
         try {
-
             DtSucursal dtSucursal = new DtSucursal(null, dtCreacionSucursal.getNombre(), dtCreacionSucursal.getCoordenadas(), atmId); 
             return sucursalService.crearSucursal(dtSucursal);
-
         }catch (SucursalException s) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s.getMessage());
         } catch (Exception e) {

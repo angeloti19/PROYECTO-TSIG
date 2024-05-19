@@ -1,5 +1,7 @@
 package com.tsig.backend.services;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.tsig.backend.converters.SucursalConverter;
 import com.tsig.backend.datatypes.DtSucursal;
 import com.tsig.backend.entities.Automotora;
 import com.tsig.backend.entities.Sucursal;
@@ -25,6 +28,29 @@ public class SucursalService {
 
     @Autowired
     AutomotoraRepository automotoraRepository;
+
+    @Autowired
+    SucursalConverter sucursalConverter;
+
+    public List<DtSucursal> listarSucursales(Long id) throws SucursalException{
+
+        Optional<Automotora> automotora = automotoraRepository.findById(id);
+        if(!automotora.isPresent()){
+            throw new SucursalException("La automotora ingresada no existe");
+        }
+
+        Automotora automotoraEntidad = automotora.get();
+
+        List<Sucursal> sucursales = automotoraEntidad.getSucursales();
+
+        List<DtSucursal> dtSucursales = new ArrayList<DtSucursal>();
+
+        for(Sucursal sucursal: sucursales){
+            dtSucursales.add(sucursalConverter.toDt(sucursal));
+        }
+
+        return dtSucursales;
+    }
 
     public ResponseEntity<?> crearSucursal(DtSucursal dtSucursal) throws SucursalException{
 
