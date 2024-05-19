@@ -6,6 +6,6 @@ import com.tsig.backend.entities.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    Usuario findByCorreoOrUsuario(String correo, String usuario);
+    Usuario findByCorreo(String correo);
     
 }

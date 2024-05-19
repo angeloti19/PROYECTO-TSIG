@@ -1,5 +1,11 @@
 package com.tsig.backend.repositories;
 
-public interface AutomotoraRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.tsig.backend.entities.Automotora;
+
+@Repository
+public interface AutomotoraRepository extends JpaRepository<Automotora, Long> {
     
 }

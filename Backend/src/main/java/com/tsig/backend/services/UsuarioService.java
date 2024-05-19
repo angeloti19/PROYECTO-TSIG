@@ -32,8 +32,8 @@ public class UsuarioService {
         return usuarioRepo.findById(id);
     }
 
-    public DtUsuario obtenerUsuarioDto(String correo, String usuario){
-        Usuario user = usuarioRepo.findByCorreoOrUsuario(correo, usuario);
+    public DtUsuario obtenerUsuarioDto(String correo){
+        Usuario user = usuarioRepo.findByCorreo(correo);
         DtUsuario userDto = usuarioConverter.toDto(user);
         return userDto;
 

@@ -25,4 +25,14 @@ public class Usuario {
     @Column(name = "contrasenia")
     private String contrasenia;
 
+    public Usuario() {
+    }
+
+    public Usuario(Long id, String nombre, String correo, String contrasenia) {
+        this.id = id;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.contrasenia = contrasenia;
+    }
+
 }

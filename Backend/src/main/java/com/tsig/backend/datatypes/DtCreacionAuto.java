@@ -2,10 +2,11 @@ package com.tsig.backend.datatypes;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.Data;
 
 @Data
-public class DtAuto {
+public class DtCreacionAuto {
 
     private String matricula;
 
@@ -13,22 +14,16 @@ public class DtAuto {
 
     private Boolean electrico;
 
-    private Long idAutomotora;
-
     private List<DtCoordenada> recorrido = new ArrayList<>();
 
-    public DtAuto() {
+    public DtCreacionAuto() {
     }
 
-    public DtAuto(String matricula, double dist_max, Boolean electrico, Long idAutomotora,
-            List<DtCoordenada> recorrido) {
+    public DtCreacionAuto(String matricula, double dist_max, Boolean electrico, List<DtCoordenada> recorrido) {
         this.matricula = matricula;
         this.dist_max = dist_max;
         this.electrico = electrico;
-        this.idAutomotora = idAutomotora;
         this.recorrido = recorrido;
     }
-
-    
 
 }

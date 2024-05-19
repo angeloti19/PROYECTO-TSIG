@@ -12,7 +12,6 @@ public class AutoConverter {
         Auto auto = new Auto();
         auto.setMatricula(autoDto.getMatricula());
         auto.setDist_max(autoDto.getDist_max());
-        auto.setRecorrido(autoDto.getRecorrido());
         auto.setElectrico(autoDto.getElectrico());
         return auto;
     }
@@ -20,11 +19,9 @@ public class AutoConverter {
     public DtAuto toDto(Auto autoModel) {
         DtAuto autoDto = new DtAuto();
 
-        autoDto.setId(autoModel.getId());
         autoDto.setMatricula(autoModel.getMatricula());
         autoDto.setDist_max(autoModel.getDist_max());
         autoDto.setElectrico(autoModel.getElectrico());
-        autoDto.setRecorrido(autoModel.getRecorrido());
 
         return autoDto;
     }

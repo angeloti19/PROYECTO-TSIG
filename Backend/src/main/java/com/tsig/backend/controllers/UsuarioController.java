@@ -34,7 +34,7 @@ public class UsuarioController {
         try {
             return ResponseEntity.ok(userService.obtenerUsuarios()); 
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         
     }
@@ -46,7 +46,7 @@ public class UsuarioController {
             return ResponseEntity.ok(userService.guardarUsuario(usuario));
 
         } catch (UsuarioException u) {
-            return new ResponseEntity<>(u.getMessage(), HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(u.getMessage());
         }
         catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -59,7 +59,7 @@ public class UsuarioController {
         
         try {
             return ResponseEntity.ok(this.userService.obtenerUserPorId(id));
-        } catch(Exception e){
+        }catch(Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }   
     }

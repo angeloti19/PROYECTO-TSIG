@@ -1,11 +1,12 @@
 package com.tsig.backend.entities;
-import java.util.List;
 
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry; 
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import lombok.Data;
 import jakarta.persistence.*;
 
@@ -15,11 +16,8 @@ import jakarta.persistence.*;
 public class Auto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true, nullable = false)
-    private Long id;
-
-    @Column(name = "matricula")
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "matricula", unique = true, nullable = false)
     private String matricula;
 
     @Column(name = "dist_max")
@@ -31,11 +29,13 @@ public class Auto {
     @Column(name = "electrico")
     private Boolean electrico;
 
-    @Transient
-    private List<Coordinate> coord;
+    @JsonBackReference
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "automotora_id")
+    private Automotora automotora;
 
     // Método para calcular el buffer
-    public Geometry calcularBuffer(LineString recorrido, double dist_max) {
+    public Geometry calcularBuffer() {
 
         // Crear un objeto BufferParameters para configurar el estilo de la tapa final del buffer
         BufferParameters bufferParameters = new BufferParameters();
@@ -48,4 +48,17 @@ public class Auto {
         // Obtener y devolver la geometría resultante del buffer con la distancia máxima especificada
         return bufferOp.getResultGeometry(dist_max);
     }
+
+    public Auto() {
+    }
+
+    public Auto(String matricula, double dist_max, LineString recorrido, Boolean electrico,
+            Automotora automotora) {
+        this.matricula = matricula;
+        this.dist_max = dist_max;
+        this.recorrido = recorrido;
+        this.electrico = electrico;
+        this.automotora = automotora;
+    }
+
 }
