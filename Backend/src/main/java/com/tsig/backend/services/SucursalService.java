@@ -78,4 +78,50 @@ public class SucursalService {
         return ResponseEntity.ok("Sucursal "+ dtSucursal.getNombre()+" creada correctamente");
     }
 
+
+    public ResponseEntity<?> modificarSucursal(DtSucursal dtSucursal) throws SucursalException{
+
+        if(dtSucursal.getIdAutomotora() == null || dtSucursal.getNombre() == null || dtSucursal.getCoordenadas() == null){
+            throw new SucursalException("Faltan datos para la sucursal");
+        }
+
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(dtSucursal.getIdAutomotora()); // Buscamos a la automotora por su ID
+        if(!automotoraOpt.isPresent()){
+            throw new SucursalException("La automotora ingresada no existe");
+        }
+
+        Automotora automotoraEntidad = automotoraOpt.get();
+
+        boolean sucursalEncontrada = false;
+
+        for(Sucursal sucursal : automotoraEntidad.getSucursales()){
+            if (sucursal.getId().equals(dtSucursal.getId())) {
+                sucursalEncontrada = true;
+    
+                // Actualizar nombre si se proporciona
+                if (dtSucursal.getNombre() != null) {
+                    sucursal.setNombre(dtSucursal.getNombre());
+                }
+    
+                // Actualizar coordenadas si se proporcionan
+                if (dtSucursal.getCoordenadas() != null) {
+                        GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
+                        Coordinate coordenadas = new Coordinate(dtSucursal.getCoordenadas().getX(), dtSucursal.getCoordenadas().getY());
+                        Point ubicacionSucursal = Factory.createPoint(coordenadas);
+                        sucursal.setUbicacion(ubicacionSucursal);
+                } 
+            }
+            break;
+        }
+
+        if (!sucursalEncontrada) {
+            throw new SucursalException("La sucursal no pertenece a la automotora especificada");
+        }
+
+        automotoraRepository.save(automotoraEntidad);
+
+        return ResponseEntity.ok("Sucursal actualizada correctamente");
+
+    }
+
 }

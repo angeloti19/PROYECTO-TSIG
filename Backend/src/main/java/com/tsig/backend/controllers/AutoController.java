@@ -17,6 +17,18 @@ public class AutoController {
     @Autowired
     private AutoService autoService;
 
+    @GetMapping
+    public ResponseEntity<?> listarAutos(@PathVariable("atmId") Long atmId) throws AutoException, Exception{
+        
+        try {
+            return ResponseEntity.ok(autoService.listarAutos(atmId));
+        }catch (AutoException a) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(a.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> crearAuto(@PathVariable("atmId") Long atmId, @RequestBody DtCreacionAuto dtCreacionAuto) throws AutoException, Exception{
         try {

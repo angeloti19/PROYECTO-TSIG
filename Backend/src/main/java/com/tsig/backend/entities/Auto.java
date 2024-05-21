@@ -2,6 +2,7 @@ package com.tsig.backend.entities;
 
 import org.locationtech.jts.geom.Geometry; 
 import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.operation.buffer.BufferOp;
 import org.locationtech.jts.operation.buffer.BufferParameters;
 
@@ -29,6 +30,9 @@ public class Auto {
     @Column(name = "electrico")
     private Boolean electrico;
 
+    @Column(name="ubicacion", columnDefinition = "Geometry(Point,32721)")
+    private Point ubicacion;
+
     @JsonBackReference
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "automotora_id")
@@ -52,12 +56,13 @@ public class Auto {
     public Auto() {
     }
 
-    public Auto(String matricula, double dist_max, LineString recorrido, Boolean electrico,
+    public Auto(String matricula, double dist_max, LineString recorrido, Boolean electrico, Point ubicacion,
             Automotora automotora) {
         this.matricula = matricula;
         this.dist_max = dist_max;
         this.recorrido = recorrido;
         this.electrico = electrico;
+        this.ubicacion = ubicacion;
         this.automotora = automotora;
     }
 
