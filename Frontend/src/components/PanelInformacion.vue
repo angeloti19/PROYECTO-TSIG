@@ -1,11 +1,10 @@
 <script>
 
-import AdminAutosSeccion from '@/components/secciones/AdminAutosSeccion.vue'
+import AutosSeccion from '@/components/secciones/AutosSeccion.vue'
 import AdminPerfilSeccion from '@/components/secciones/AdminPerfilSeccion.vue'
 import AutomotorasSeccion from '@/components/secciones/AutomotorasSeccion.vue'
 import ConsultasGeograficasSeccion from '@/components/secciones/ConsultasGeograficasSeccion.vue'
 import IniciarSesionSeccion from '@/components/secciones/IniciarSesionSeccion.vue'
-import UsuarioAutosSeccion from '@/components/secciones/UsuarioAutosSeccion.vue'
 import DesarrolloSeccion from '@/components/secciones/DesarrolloSeccion.vue'
 import BienvenidaSeccion from '@/components/secciones/BienvenidaSeccion.vue'
 import { store } from '@/store'
@@ -13,12 +12,11 @@ import { store } from '@/store'
 export default{
     name: 'panelInformacion',
     components: {
-        AdminAutosSeccion,
+        AutosSeccion,
         AdminPerfilSeccion,
         AutomotorasSeccion,
         ConsultasGeograficasSeccion,
         IniciarSesionSeccion,
-        UsuarioAutosSeccion,
         DesarrolloSeccion,
         BienvenidaSeccion
     },
@@ -38,17 +36,17 @@ export default{
                             id: 'iniciar-sesion',
                             tipoUsuario: 'anonimo'
                             },
-                            {titulo: 'Automotoras y sucursales',
-                            tooltip: 'Automotoras y sucursales',
+                            {titulo: 'Automotoras',
+                            tooltip: 'Automotoras',
                             icono: 'mdi-office-building',
                             id: 'automotoras',
                             tipoUsuario: 'admin'
                             },
-                            {titulo: 'Autos',
+                            {titulo: 'Autos disponibles',
                             tooltip: 'Autos',
                             icono: 'mdi-car-side',
                             id: 'autos',
-                            tipoUsuario: 'admin'
+                            tipoUsuario: 'anonimo'
                             },
                             {titulo: 'Consultas geográficas',
                             tooltip: 'Consultas geográficas',
@@ -106,40 +104,45 @@ export default{
 
 <template>
     <div class="base" :style="{ 'background-color': obtenerColorUsuario}">
-        <div class="seccion-contenido">
-            <div class="title-bar">
-                <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
-            </div>
-            <div class="cuerpo">
-                <AdminAutosSeccion class="seccion" v-if="store.seccionActual == 'autos'"/>
-                <AdminPerfilSeccion class="seccion"  v-if="store.seccionActual == 'perfil'"/>
-                <AutomotorasSeccion class="seccion" v-if="store.seccionActual == 'automotoras'"/>
-                <ConsultasGeograficasSeccion class="seccion" v-if="store.seccionActual == 'consultas'"/>
-                <IniciarSesionSeccion class="seccion" v-if="store.seccionActual == 'iniciar-sesion'"/>
-                <UsuarioAutosSeccion class="seccion" v-if="store.seccionActual == 'autos-usuario'"/>
-                <DesarrolloSeccion class="seccion" v-if="store.seccionActual == 'desarrollo'"/>
+        <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud'">
+            <div class="seccion-contenido">
+                <div class="title-bar">
+                    <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
+                </div>
+                <div class="cuerpo">
+                    <AutosSeccion class="seccion" v-if="store.seccionActual == 'autos'"/>
+                    <AdminPerfilSeccion class="seccion"  v-if="store.seccionActual == 'perfil'"/>
+                    <AutomotorasSeccion class="seccion" v-if="store.seccionActual == 'automotoras'"/>
+                    <ConsultasGeograficasSeccion class="seccion" v-if="store.seccionActual == 'consultas'"/>
+                    <IniciarSesionSeccion class="seccion" v-if="store.seccionActual == 'iniciar-sesion'"/>
+                    <DesarrolloSeccion class="seccion" v-if="store.seccionActual == 'desarrollo'"/>
+                    <BienvenidaSeccion v-if="store.seccionActual == 'bienvenida'"/>
+                </div>
+                
                 
             </div>
-            <BienvenidaSeccion v-if="store.seccionActual == 'bienvenida'"/>
-            
-        </div>
-        <div class="side-bar" >
-            <v-layout>
-                <v-navigation-drawer
-                style="border-left-width: 2px; border-left-color: rgba(255, 255, 255, 0.466);" :color="obtenerColorUsuario"
-                    location="right" rail permanent>
-                    <v-list v-model="store.seccionActual" density="compact" nav>
-                        <template v-for="seccion in secciones">
-                            <v-list-item  v-if="esUsuarioCorrecto(seccion.tipoUsuario)" @click="store.seccionActual = seccion.id" :prepend-icon="seccion.icono" :value="seccion.id">
-                                <v-tooltip open-delay="400" activator="parent" location="start">{{ seccion.tooltip }}</v-tooltip>
-                            </v-list-item>
-                        </template>
-                        
-                    </v-list>
-                </v-navigation-drawer>
-            </v-layout>
+            <div class="side-bar" >
+                <v-layout>
+                    <v-navigation-drawer
+                    style="border-left-width: 2px; border-left-color: rgba(255, 255, 255, 0.466);" :color="obtenerColorUsuario"
+                        location="right" rail permanent>
+                        <v-list v-model="store.seccionActual" density="compact" nav>
+                            <template v-for="seccion in secciones">
+                                <v-list-item  v-if="esUsuarioCorrecto(seccion.tipoUsuario)" @click="store.seccionActual = seccion.id" :prepend-icon="seccion.icono" :value="seccion.id">
+                                    <v-tooltip open-delay="400" activator="parent" location="start">{{ seccion.tooltip }}</v-tooltip>
+                                </v-list-item>
+                            </template>
+                            
+                        </v-list>
+                    </v-navigation-drawer>
+                </v-layout>
 
+            </div>
         </div>
+        <div class="info-modo" v-if="store.modoInteraccion == 'punto-sucursal'">
+            <p>Seleccione la ubicación de la sucursal</p>
+        </div>
+        
     </div>
 </template>
 
@@ -163,13 +166,31 @@ export default{
     border-bottom-style: solid;
     padding: 12px 78px 12px 20px;
     font-weight: 600;
+    height: 50px;
 }
 
 .cuerpo{
-    padding: 0px 78px 0px 20px;
+    padding: 0px calc(0% + 56px) 0px 0px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: calc(100% - 50px);
+    position: relative;
 }
 
 .seccion{
     padding-top: 12px;
 }
+.info-modo{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.seccion-contenido{
+    height:100%;
+}
+
 </style>

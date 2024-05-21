@@ -4,6 +4,7 @@ import BotonCircular from './BotonCircular.vue';
 import logo from './icons/logo.vue';
 import poligono from './icons/poligono.vue'
 import ubicacion from './icons/ubicacion.vue'
+import Map from "ol/Map";
 
 export default{
     name: 'mapa',
@@ -40,17 +41,26 @@ export default{
         },
         drawstart(event){
             let puntoClick = event.feature.values_.geometry.flatCoordinates
-            this.store.puntoSolicitud = puntoClick
-            if(this.store.currentZoom < 15.5){
-                this.$refs.view.animate({center: puntoClick}, {zoom: 15.5})
-            }else{
-                this.$refs.view.animate({center: puntoClick})
+            //Si el modo es punto de solicitud
+            if(store.modoInteraccion == "punto-solicitud"){
+                this.store.puntoSolicitud = puntoClick
+                if(this.store.currentZoom < 15.5){
+                    this.$refs.view.animate({center: puntoClick}, {zoom: 15.5})
+                }else{
+                    this.$refs.view.animate({center: puntoClick})
+                }
+            }
+            //Si el modo es ubicacion sucursal
+            if(store.modoInteraccion == "punto-sucursal"){
+                store.marcarPuntoSucursal(puntoClick)
             }
             
         }
     },
     mounted(){
         store.viewReference = this.$refs.view
+        store.mapReference = this.$refs.mapref.map
+        store.fetchSucursalesMapa()
     },
     computed:{
         obtenerColorUsuario(){
@@ -75,7 +85,7 @@ export default{
         />
 
         <!-- Div overlay -->
-        <div class="overlay">
+        <div class="overlay" v-show="store.modoInteraccion == 'punto-solicitud'">
             <div class="barra-y-boton">
                 <div style="height: 20px;">
                     <v-expansion-panels>
@@ -117,14 +127,14 @@ export default{
                     :transition="0"
                     :params="{}"/>
             </ol-tile-layer>
-            <ol-tile-layer :zIndex="1000" :visible=true>
-                <ol-source-tile-wms
+            <ol-image-layer :zIndex="1000" :visible=true>
+                <ol-source-image-wms
                     url="http://localhost:8080/geoserver/wms"
                     layers="tsige:t00departamento"
                     serverType="geoserver"
                     :transition="0"
                     :params="{}"/>
-            </ol-tile-layer>
+            </ol-image-layer>
         </ol-layer-group>
 
         <!-- Punto de ubicacion de usuario -->
@@ -150,7 +160,7 @@ export default{
         </ol-geolocation>
         
         <!--Punto de solicitud -->
-        <ol-vector-layer :zIndex="1002">
+        <ol-vector-layer :zIndex="1009">
             <ol-source-vector>
                 <ol-feature ref="posicionSolicitud">
                     <ol-geom-point :coordinates="store.puntoSolicitud"></ol-geom-point>

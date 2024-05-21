@@ -36,7 +36,7 @@ export default{
 <style scoped>
 .zona-logo{
     background-color: rgb(255, 255, 255);
-    width: 87.5%;
+    width: 100%;
     height: 200px;
     display: flex;
 

@@ -1,6 +1,7 @@
 package com.tsig.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import com.tsig.backend.datatypes.DtCreacionAutomotora;
 import com.tsig.backend.exceptions.AutomotoraException;
 import com.tsig.backend.services.AutomotoraService;
 
+@CrossOrigin(origins = "http://localhost:5173/")
 @RestController
 @RequestMapping("/api/automotora")
 public class AutomotoraController {

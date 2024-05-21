@@ -1,6 +1,6 @@
 <script>
 export default{
-    name: 'adminAutosSeccion',
+    name: 'autosSeccion',
     components: {
 
     },
@@ -17,7 +17,7 @@ export default{
 
 <template>
     <div>
-        Esta es la seccion de autos para admins
+        Esta es la seccion de autos disponibles
     </div>
     
 </template>
