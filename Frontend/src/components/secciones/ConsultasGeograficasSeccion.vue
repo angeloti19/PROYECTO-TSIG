@@ -16,7 +16,7 @@ export default{
 </script>
 
 <template>
-    <div>
+    <div style="padding: 15px 15px;">
         Esta es la seccion de inicio de consultas geograficas
     </div>
     

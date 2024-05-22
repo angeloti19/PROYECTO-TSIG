@@ -47,9 +47,9 @@ export default{
 </script>
 
 <template>
-    <div>
+    <div style="padding: 15px 15px;">
         <p>Si usted es un administrador, puede ingresar aquí.</p>
-        <form> 
+        <form>
             <div class="contenedor-formulario">
                 <label for="correo">Correo</label>
                 <input v-model="correo" name="correo" id="correo" type="email">

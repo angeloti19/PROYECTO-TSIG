@@ -19,8 +19,7 @@ export default{
             projectionName: 'EPSG:32721',
             projectionDef: '+proj=utm +zone=21 +south +datum=WGS84 +units=m +no_defs +type=crs',
             projectionExtent: [166021.44, 1116915.04, 833978.56, 10000000.0],
-            anchor: [0.517, 150],
-            abab: "red"
+            anchor: [0.517, 150]
         }
     },
     methods:{
@@ -38,28 +37,13 @@ export default{
             this.store.currentGeolocation = event.target.getPosition();
             //this.$refs.view.setCenter(event.target.getPosition());
             //this.puntoSolicitud = event.target.getPosition();
-        },
-        drawstart(event){
-            let puntoClick = event.feature.values_.geometry.flatCoordinates
-            //Si el modo es punto de solicitud
-            if(store.modoInteraccion == "punto-solicitud"){
-                this.store.puntoSolicitud = puntoClick
-                if(this.store.currentZoom < 15.5){
-                    this.$refs.view.animate({center: puntoClick}, {zoom: 15.5})
-                }else{
-                    this.$refs.view.animate({center: puntoClick})
-                }
-            }
-            //Si el modo es ubicacion sucursal
-            if(store.modoInteraccion == "punto-sucursal"){
-                store.marcarPuntoSucursal(puntoClick)
-            }
-            
         }
     },
     mounted(){
         store.viewReference = this.$refs.view
         store.mapReference = this.$refs.mapref.map
+        store.agregarInteraccion("Point")
+        store.modoInteraccion = "punto-solicitud"
         store.fetchSucursalesMapa()
     },
     computed:{
@@ -172,12 +156,13 @@ export default{
         </ol-vector-layer>
 
         <!-- Interaccion para obtener coordenadas de cursor -->
-        <ol-interaction-draw
+        <!-- <ol-interaction-draw
           ref="indicadorClick"
-          type="Point"
+          :type="store.tipoInteraccion"
           @drawstart="drawstart"
+          @drawend="drawend"
         >
-        </ol-interaction-draw>
+        </ol-interaction-draw> -->
 
         
     </ol-map>

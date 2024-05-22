@@ -72,7 +72,6 @@ export default {
         },
         setUbicacion(coordenada){
             //Esta funcion es llamada cuando se coloca el punto en el mapa
-            console.log("RECIVI COORDENADA: " + coordenada)
             store.modoInteraccion = "punto-solicitud"
             this.x = coordenada[0]
             this.y = coordenada[1]

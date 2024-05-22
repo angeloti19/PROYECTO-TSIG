@@ -104,7 +104,7 @@ export default{
 
 <template>
     <div class="base" :style="{ 'background-color': obtenerColorUsuario}">
-        <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud'">
+        <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'normal'">
             <div class="seccion-contenido">
                 <div class="title-bar">
                     <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
@@ -140,7 +140,11 @@ export default{
             </div>
         </div>
         <div class="info-modo" v-if="store.modoInteraccion == 'punto-sucursal'">
-            <p>Seleccione la ubicación de la sucursal</p>
+            <p>Seleccione la ubicación de la sucursal.</p>
+        </div>
+        <div class="info-modo" v-if="store.modoInteraccion == 'recorrido-auto'">
+            <p>Seleccione el recorrido del auto.</p>
+            <p>Para terminar el recorrido, haga click en el último punto.</p>
         </div>
         
     </div>
@@ -187,6 +191,8 @@ export default{
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 30px;
+    text-align: center;
 }
 
 .seccion-contenido{

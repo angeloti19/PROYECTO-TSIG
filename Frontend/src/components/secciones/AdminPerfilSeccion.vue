@@ -23,7 +23,7 @@ export default{
 </script>
 
 <template>
-    <div>
+    <div style="padding: 15px 15px;">
         <p>Esta es la seccion de perfil para admins, donde pueden cerrar su sesion</p>
         <button @click="cerrarSesion" class="boton">Cerrar sesion</button>
     </div>

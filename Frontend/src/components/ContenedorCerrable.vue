@@ -25,7 +25,7 @@ export default {
             </div>
         </div>
         <v-divider/>
-        <div style="padding-right: 35px; padding-top: 5px;">
+        <div class="contenedor-contenido" style="padding-right: 35px; padding-top: 5px;">
             <slot name="contenido">
                 Contenitdo
             </slot>
@@ -49,7 +49,11 @@ export default {
     padding-top: 5px;
     padding-right: 10px;
     background-color: white;
-    overflow-y: auto
+}
+
+.contenedor-contenido{
+    overflow-y: auto;
+    max-height: 389px;
 }
 
 h1 {

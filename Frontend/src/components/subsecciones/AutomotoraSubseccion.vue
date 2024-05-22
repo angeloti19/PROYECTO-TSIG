@@ -2,13 +2,15 @@
 import axios from 'axios';
 import { store } from '@/store'
 import NuevaSucursalModal from '../modales/NuevaSucursalModal.vue';
+import NuevoAutoModal from '../modales/NuevoAutoModal.vue';
 import sucursalIcono from '@/components/icons/sucursalIcono.vue'
 
 export default{
     name: 'automotoraSubseccion',
     components: {
         NuevaSucursalModal,
-        sucursalIcono
+        sucursalIcono,
+        NuevoAutoModal
     },
     data(){
         return{
@@ -55,6 +57,9 @@ export default{
         },
         mostrarModalNuevaSucursal(){
             this.$refs.nuevaSucursalModal.abrir()
+        },
+        mostrarModalNuevoAuto(){
+            this.$refs.nuevoAutoModal.abrir()
         }
     },
 }
@@ -63,11 +68,12 @@ export default{
 
 <template>
     <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales"/>
+    <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos"/>
     <div>
         <div class="contenedor-sucursales"> <!-- Sucursales -->
             <div style="display:flex; justify-content: space-around; margin-bottom: 8px;">
                 <button class="boton" @click="mostrarModalNuevaSucursal">Nueva sucursal</button>
-                <button class="boton">Nuevo auto</button>
+                <button class="boton" @click="mostrarModalNuevoAuto">Nuevo auto</button>
             </div>
             
             <p style="font-weight: 600; margin-bottom: 10px"> Sucursales </p>

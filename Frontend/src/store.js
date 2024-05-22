@@ -2,6 +2,7 @@ import { reactive } from 'vue'
 import axios from 'axios';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
+import Draw from 'ol/interaction/Draw';
 
 export const store = reactive({
   //Mapa
@@ -20,12 +21,15 @@ export const store = reactive({
   mapReference: undefined,
   capaConFiltroAnterior: undefined,
   capaSucursales: undefined,
-  modoInteraccion: "punto-solicitud",
+  modoInteraccion: "normal",
+  tipoInteraccion: "",
+  interaccionRef: undefined,
   //Sesion
   tipoUsuario: undefined,
   //Panel
   seccionActual: 'bienvenida',
   funcionUbicacionSucursal: undefined,
+  funcionRecorridoAuto: undefined,
   usarUbicacion() {
     if (this.currentGeolocation.length == 0) {
       alert("Permita acceso a su ubicación para utilizar geolocalización.")
@@ -110,15 +114,59 @@ export const store = reactive({
     this.capaSucursales.getSource().updateParams(params)
   },
   marcarPuntoSucursal(coordenada){
-    console.log("SE ESCOGIO EL PUNTO:" + coordenada)
     //Si se paso la referencia a la funcion para pasar las coordenadas, se envian
     if(this.funcionUbicacionSucursal){
       this.funcionUbicacionSucursal(coordenada)
     }
   },
+  marcarRecorridoAuto(recorrido){
+    //Si se paso la referencia a la funcion para pasar el recorrido, se envian
+    if(this.funcionRecorridoAuto){
+      this.funcionRecorridoAuto(recorrido)
+    }
+  },
   centrarMapaEnCoordenada(coordenada){
-    console.log("SE VA A CENTRAR EN:")
-    console.log(coordenada)
     this.viewReference.animate({ center: coordenada })
+  },
+  agregarInteraccion(tipo){
+    if(this.interaccionRef){
+      this.mapReference.removeInteraction(this.interaccionRef)
+      this.interaccionRef = undefined
+    }
+    const interaccion = new Draw({
+      type: tipo,
+    });
+    interaccion.on('drawstart', this.drawstart.bind(this));
+    interaccion.on('drawend', this.drawend.bind(this));
+    this.tipoInteraccion = tipo;
+    this.mapReference.addInteraction(interaccion);
+    this.interaccionRef = interaccion
+  },
+  drawstart(event){
+    // console.log("DRAWSTART")
+    // console.log(event)
+    let puntoClick = event.feature.values_.geometry.flatCoordinates
+    //Si el modo es punto de solicitud
+    if(this.modoInteraccion == "punto-solicitud"){
+      this.puntoSolicitud = puntoClick
+      if(this.currentZoom < 15.5){
+          this.viewReference.animate({center: puntoClick}, {zoom: 15.5})
+      }else{
+          this.viewReference.animate({center: puntoClick})
+      }
+    }
+    //Si el modo es ubicacion sucursal
+    if(this.modoInteraccion == "punto-sucursal"){
+      this.marcarPuntoSucursal(puntoClick)
+    }           
+  },
+  drawend(event){
+      // console.log("DRAWEND")
+      // console.log(event)
+      //Si el modo es recorrido auto
+      if(this.modoInteraccion == "recorrido-auto"){
+          let recorrido = event.feature.values_.geometry.flatCoordinates
+          this.marcarRecorridoAuto(recorrido)
+      } 
   }
 })
