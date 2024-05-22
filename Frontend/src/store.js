@@ -21,6 +21,7 @@ export const store = reactive({
   mapReference: undefined,
   capaConFiltroAnterior: undefined,
   capaSucursales: undefined,
+  capaAutos: undefined,
   modoInteraccion: "normal",
   tipoInteraccion: "",
   interaccionRef: undefined,
@@ -94,7 +95,7 @@ export const store = reactive({
     const capaSucursales = new TileLayer({
       zIndex: 1002,
       visible: true,
-      minZoom: 13,
+ 
       source: new TileWMS({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
@@ -112,6 +113,34 @@ export const store = reactive({
     let params = this.capaSucursales.getSource().getParams()
     params.t = new Date().getMilliseconds()
     this.capaSucursales.getSource().updateParams(params)
+  },
+  fetchAutosMapa() {
+    // Eliminar la capa anterior si existe
+    if (this.capaAutos) {
+      this.mapReference.removeLayer(this.capaAutos);
+    }
+
+    const capaAutos = new TileLayer({
+      zIndex: 1002,
+      visible: true,
+      minZoom: 13,
+      source: new TileWMS({
+        url: 'http://localhost:8080/geoserver/wms',
+        params: {
+          'LAYERS': 'tsige:auto',
+          // 'CQL_FILTER': `nom_calle = '${valorFiltro}'`
+        },
+        serverType: 'geoserver',
+        transition: 0
+      })
+    });
+    this.mapReference.addLayer(capaAutos);
+    // Actualizar la referencia de la capa anterior
+    this.capaAutos = capaAutos;
+    // Esto es para refrescar la capa
+    let params = this.capaAutos.getSource().getParams()
+    params.t = new Date().getMilliseconds()
+    this.capaAutos.getSource().updateParams(params)
   },
   marcarPuntoSucursal(coordenada){
     //Si se paso la referencia a la funcion para pasar las coordenadas, se envian

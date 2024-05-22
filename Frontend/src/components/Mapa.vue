@@ -45,6 +45,7 @@ export default{
         store.agregarInteraccion("Point")
         store.modoInteraccion = "punto-solicitud"
         store.fetchSucursalesMapa()
+        store.fetchAutosMapa()
     },
     computed:{
         obtenerColorUsuario(){

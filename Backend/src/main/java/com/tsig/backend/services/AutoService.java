@@ -68,7 +68,7 @@ public class AutoService {
 
         GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
         Coordinate[] coordinate = dtAuto.getRecorrido().stream() //Convierto la lista de DtCoordenadas en un arreglo de Coordinate para crear la LINEA
-                                                       .map(coord -> new Coordinate(coord.getX(), coord.getX()))
+                                                       .map(coord -> new Coordinate(coord.getX(), coord.getY()))
                                                        .toArray(Coordinate[]::new);
         LineString recorridoAuto =  Factory.createLineString(coordinate);
 

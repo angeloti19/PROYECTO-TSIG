@@ -72,7 +72,7 @@ export default {
                 .then(async function (response) {
                     this.autoCreado = true
                     this.isLoading = false
-                    //this.store.fetchAutosMapa()  hacer esto luego
+                    this.store.fetchAutosMapa()
                     this.$emit('refetch')
                 }.bind(this))
                 .catch(function (error) {
@@ -98,6 +98,8 @@ export default {
                     y: recorrido[i + 1]
                 })
             }
+            console.log("EL RECORRIDO ESSSSSSS:")
+            console.log(recorridoFormateado)
             store.modoInteraccion = "punto-solicitud"
             store.agregarInteraccion("Point")
             this.recorrido = recorridoFormateado
