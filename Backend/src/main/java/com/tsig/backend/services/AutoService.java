@@ -34,6 +34,31 @@ public class AutoService {
     @Autowired
     AutomotoraRepository automotoraRepository;
 
+    public DtAuto obtenerDtAutoPorId(Long atmId, String autId) throws AutoException{
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(atmId);
+        if(!automotoraOpt.isPresent()){
+            throw new AutoException("La automotora ingresada no existe");
+        }
+
+        Automotora automotora = automotoraOpt.get();
+        boolean autoEncontrado = false;
+        DtAuto dtAuto = new DtAuto();
+
+        for(Auto auto : automotora.getAutos()){
+            if(auto.getMatricula().equals(autId)){
+                autoEncontrado = true;
+                dtAuto = autoConverter.toDto(auto);
+            }
+            break;
+        }
+
+        if(!autoEncontrado){
+            throw new AutoException("El auto ingresado no pertenece a la automotora o no existe");
+        }
+
+        return dtAuto;
+    }
+
     public List<DtAuto> listarAutos(Long idAutomotora) throws AutoException{
 
         Optional<Automotora> automotora = automotoraRepository.findById(idAutomotora);

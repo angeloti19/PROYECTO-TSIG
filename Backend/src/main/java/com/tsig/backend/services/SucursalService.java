@@ -32,6 +32,33 @@ public class SucursalService {
     @Autowired
     SucursalConverter sucursalConverter;
 
+    public DtSucursal obteDtSucursalPorId(Long atmId, Long sucId) throws SucursalException{
+
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(atmId);
+        if(!automotoraOpt.isPresent()){
+            throw new SucursalException("La automotora ingresada no existe");
+        }
+
+        Automotora automotoraEntidad = automotoraOpt.get();
+        boolean sucursalEncontrada = false;
+        DtSucursal dtSucursal = new DtSucursal();
+
+        for(Sucursal sucursal : automotoraEntidad.getSucursales()){
+            if (sucursal.getId().equals(sucId)) {
+                sucursalEncontrada = true;
+                
+                dtSucursal = sucursalConverter.toDt(sucursal);
+            }
+            break;
+        }
+
+        if (!sucursalEncontrada) {
+            throw new SucursalException("La sucursal no pertenece a la automotora especificada");
+        }
+
+        return dtSucursal;
+    }
+
     public List<DtSucursal> listarSucursales(Long id) throws SucursalException{
 
         Optional<Automotora> automotora = automotoraRepository.findById(id);

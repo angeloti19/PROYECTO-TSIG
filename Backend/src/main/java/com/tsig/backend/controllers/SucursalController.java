@@ -25,6 +25,17 @@ public class SucursalController {
     @Autowired
     SucursalService sucursalService;
 
+    @GetMapping(path = "/{sucId}")
+    public ResponseEntity<?> obtenerDtSucursalPorId(@PathVariable("atmId") Long atmId, @PathVariable("sucId") Long sucId) throws SucursalException, Exception{
+        try {
+            return ResponseEntity.ok(sucursalService.obteDtSucursalPorId(atmId, sucId));
+        }catch (SucursalException s) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> listarSucursal (@PathVariable("atmId") Long atmId) throws SucursalException, Exception{
         try {

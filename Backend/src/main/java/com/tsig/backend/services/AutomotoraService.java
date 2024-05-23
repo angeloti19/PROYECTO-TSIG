@@ -2,6 +2,7 @@ package com.tsig.backend.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -27,6 +28,19 @@ public class AutomotoraService {
 
     @Autowired
     AutomotoraConverter automotoraConverter;
+
+    public DtAutomotora obtenerDtAutomotoraPorId(Long id) throws AutomotoraException{
+
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(id);
+        if(!automotoraOpt.isPresent()){
+            throw new AutomotoraException("La automotora ingresada no existe");
+        }
+        Automotora automotora = automotoraOpt.get();
+
+        DtAutomotora dtAutomotora = automotoraConverter.toDt(automotora);
+
+        return dtAutomotora;
+    }
 
     public List<DtAutomotora> obtenerDtAutomotoras() throws AutomotoraException{
         List<Automotora> automotoras = automotoraRepository.findAll();

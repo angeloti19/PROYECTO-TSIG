@@ -1,6 +1,5 @@
 package com.tsig.backend.controllers;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,18 @@ public class AutoController {
 
     @Autowired
     private AutoService autoService;
+
+    @GetMapping(path = "/{autId}")
+    public ResponseEntity<?> obtenerDtAutoPorId(@PathVariable("atmId") Long atmId, @PathVariable("autId") String autId) throws AutoException, Exception{
+        try {
+            return ResponseEntity.ok(autoService.obtenerDtAutoPorId(atmId, autId));
+        }catch (AutoException a) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(a.getMessage());
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
     @GetMapping
     public ResponseEntity<?> listarAutos(@PathVariable("atmId") Long atmId) throws AutoException, Exception{
