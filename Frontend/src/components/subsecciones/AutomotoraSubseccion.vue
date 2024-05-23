@@ -26,6 +26,12 @@ export default{
     mounted(){
         this.fetchSucursales()
         this.fetchAutos()
+        this.store.fetchSucursalesMapa(`automotora_id = '${this.automotoraId}'`)
+        this.store.fetchAutosMapa(`automotora_id = '${this.automotoraId}'`)
+    },
+    unmounted(){
+        this.store.fetchSucursalesMapa("")
+        this.store.fetchAutosMapa("")
     },
     props:{
         automotoraId : Number

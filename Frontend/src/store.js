@@ -25,6 +25,8 @@ export const store = reactive({
   modoInteraccion: "normal",
   tipoInteraccion: "",
   interaccionRef: undefined,
+  filtroSucursal: "",
+  filtroAuto: "",
   //Sesion
   tipoUsuario: undefined,
   //Panel
@@ -86,7 +88,11 @@ export const store = reactive({
     // Actualizar la referencia de la capa anterior
     this.capaConFiltroAnterior = nuevaCapa;
   },
-  fetchSucursalesMapa() {
+  fetchSucursalesMapa(filtro) {
+    // Si se proporciona un filtro, se utiliza
+    if(filtro != undefined){
+      this.filtroSucursal = filtro
+    }
     // Eliminar la capa anterior si existe
     if (this.capaSucursales) {
       this.mapReference.removeLayer(this.capaSucursales);
@@ -100,7 +106,7 @@ export const store = reactive({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
           'LAYERS': 'tsige:sucursal',
-          // 'CQL_FILTER': `nom_calle = '${valorFiltro}'`
+          'CQL_FILTER': this.filtroSucursal
         },
         serverType: 'geoserver',
         transition: 0
@@ -114,7 +120,11 @@ export const store = reactive({
     params.t = new Date().getMilliseconds()
     this.capaSucursales.getSource().updateParams(params)
   },
-  fetchAutosMapa() {
+  fetchAutosMapa(filtro) {
+    // Si se proporciona un filtro, se utiliza
+    if(filtro != undefined){
+      this.filtroAuto = filtro
+    }
     // Eliminar la capa anterior si existe
     if (this.capaAutos) {
       this.mapReference.removeLayer(this.capaAutos);
@@ -128,7 +138,7 @@ export const store = reactive({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
           'LAYERS': 'tsige:auto',
-          // 'CQL_FILTER': `nom_calle = '${valorFiltro}'`
+          'CQL_FILTER': this.filtroAuto
         },
         serverType: 'geoserver',
         transition: 0

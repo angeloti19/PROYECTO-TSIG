@@ -98,8 +98,6 @@ export default {
                     y: recorrido[i + 1]
                 })
             }
-            console.log("EL RECORRIDO ESSSSSSS:")
-            console.log(recorridoFormateado)
             store.modoInteraccion = "punto-solicitud"
             store.agregarInteraccion("Point")
             this.recorrido = recorridoFormateado
