@@ -53,4 +53,17 @@ public class AutoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PutMapping(path = "/{autId}")
+    public ResponseEntity<?> editarRecorrido(@PathVariable("atmId") Long atmId, @PathVariable("autId") String autId, @RequestBody DtCreacionAuto dtCreacionAuto) throws AutoException, Exception{
+        try {
+            DtAuto dtAuto = new DtAuto(dtCreacionAuto.getMatricula(), dtCreacionAuto.getDist_max(), dtCreacionAuto.getElectrico(), atmId, dtCreacionAuto.getRecorrido());
+            return ResponseEntity.ok(autoService.editarRecorrido(dtAuto));
+        }catch (AutoException a) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(a.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

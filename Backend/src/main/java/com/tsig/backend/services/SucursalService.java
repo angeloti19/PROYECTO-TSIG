@@ -93,7 +93,7 @@ public class SucursalService {
         GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
         Coordinate coordenadas = new Coordinate(dtSucursal.getCoordenadas().getX(), dtSucursal.getCoordenadas().getY());
         Point ubicacionSucursal = Factory.createPoint(coordenadas);
-
+        
         Automotora automotoraEnt = automotora.get(); //Obtenemos la automotora como entidad con la funcion .get()
 
         Sucursal sucursal = new Sucursal(dtSucursal.getNombre(), automotoraEnt , ubicacionSucursal); // Creamos sucursal 
@@ -108,7 +108,7 @@ public class SucursalService {
 
     public ResponseEntity<?> modificarSucursal(DtSucursal dtSucursal) throws SucursalException{
 
-        if(dtSucursal.getIdAutomotora() == null || dtSucursal.getNombre() == null || dtSucursal.getCoordenadas() == null){
+        if(dtSucursal.getIdAutomotora() == null || dtSucursal.getNombre() == null){
             throw new SucursalException("Faltan datos para la sucursal");
         }
 

@@ -9,5 +9,5 @@ import com.tsig.backend.entities.Auto;
 public interface AutoRepository extends JpaRepository<Auto, Long> {
 
     Auto findByMatricula(String matricula);
-    
+
 }

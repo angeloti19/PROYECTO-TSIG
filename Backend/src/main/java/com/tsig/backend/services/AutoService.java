@@ -5,16 +5,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.operation.buffer.BufferOp;
+import org.locationtech.jts.operation.buffer.BufferParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tsig.backend.entities.Auto;
 import com.tsig.backend.entities.Automotora;
+import com.tsig.backend.entities.Sucursal;
 import com.tsig.backend.exceptions.AutoException;
 import com.tsig.backend.repositories.AutoRepository;
 import com.tsig.backend.repositories.AutomotoraRepository;
@@ -33,6 +37,20 @@ public class AutoService {
 
     @Autowired
     AutomotoraRepository automotoraRepository;
+
+       public Geometry calcularBuffer(LineString recorrido, Double dist_max ){
+        // Crear un objeto BufferParameters para configurar el estilo de la tapa final del buffer
+        BufferParameters bufferParameters = new BufferParameters();
+        // Establecer el estilo de la tapa final del buffer (redondeada)
+        bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
+        
+        // Crear un objeto BufferOp con el recorrido y los parámetros del buffer
+        BufferOp bufferOp = new BufferOp(recorrido, bufferParameters);
+        
+        // Obtener y devolver la geometría resultante del buffer con la distancia máxima especificada
+        return bufferOp.getResultGeometry(dist_max);
+
+    }
 
     public DtAuto obtenerDtAutoPorId(Long atmId, String autId) throws AutoException{
         Optional<Automotora> automotoraOpt = automotoraRepository.findById(atmId);
@@ -80,16 +98,67 @@ public class AutoService {
 
     }
 
-    public ResponseEntity<?> crearAuto(DtAuto dtAuto) throws AutoException {
+    public ResponseEntity<?> editarRecorrido(DtAuto dtAuto) throws AutoException {
 
-        if(dtAuto.getIdAutomotora() == null){
-            throw new AutoException("Debe asignarse a una automotora");
-        }
-
-        Optional<Automotora> automotora = automotoraRepository.findById(dtAuto.getIdAutomotora());
-        if(!automotora.isPresent()){
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(dtAuto.getIdAutomotora()); //Busco a la automotora pasada por parametro
+        if(!automotoraOpt.isPresent()){
             throw new AutoException("La automotora ingresada no existe");
         }
+
+        Automotora automotora = automotoraOpt.get(); //Obtengo a la entidad de autmotora
+        boolean autoEncontrado = false;
+
+        List<Sucursal> sucursales = automotora.getSucursales(); //Obtengo lista de sucursales de la automotora
+
+        for(Auto auto: automotora.getAutos()){ //Recorremos lista de autos de la automotora
+            if(auto.getMatricula().equals(dtAuto.getMatricula())){ //Validamos si el auto pasada por parametro existe
+                autoEncontrado = true;
+
+                GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
+                Coordinate[] coordinate = dtAuto.getRecorrido().stream() //Convierto la lista de DtCoordenadas en un arreglo de Coordinate para crear la LINEA
+                                                            .map(coord -> new Coordinate(coord.getX(), coord.getY()))
+                                                            .toArray(Coordinate[]::new);
+                LineString recorridoAutoEditado =  Factory.createLineString(coordinate);
+
+                DtCoordenada primerCoordenada = dtAuto.getRecorrido().get(0); //Obtengo la primer coordenada del recorrido
+                Coordinate coordenadaUbiAuto = new Coordinate(primerCoordenada.getX(), primerCoordenada.getY()); // Creo las coordenadas para el pto de ubicacion del auto
+                Point ubiAutoEditado = Factory.createPoint(coordenadaUbiAuto); //Se crea el punto de ubicacion del auto
+
+                Geometry zonaCobertura = this.calcularBuffer(recorridoAutoEditado, dtAuto.getDist_max());
+
+                boolean haySucursalEnCobertura = sucursales.stream().anyMatch(sucursal-> zonaCobertura.contains(sucursal.getUbicacion()));
+                
+                if(!haySucursalEnCobertura){
+                    throw new AutoException("EL RECORRIDO NUEVO NO TIENE A NIGUNA SUCURSAL DENTRO DE SU ZONA DE COBERTURA");
+                }
+                
+                auto.setMatricula(dtAuto.getMatricula());
+                auto.setDist_max(dtAuto.getDist_max());
+                auto.setRecorrido(recorridoAutoEditado);
+                auto.setUbicacion(ubiAutoEditado);
+            }
+            break;
+        }
+
+        if(!autoEncontrado){
+            throw new AutoException("El auto no pertenece a la automotora ingresda o no existe");
+        }
+
+        automotoraRepository.save(automotora);
+
+        return ResponseEntity.ok("Auto modificado correctamente!!");
+    }
+
+    public ResponseEntity<?> crearAuto(DtAuto dtAuto) throws AutoException {
+
+        Optional<Automotora> automotoraOpt = automotoraRepository.findById(dtAuto.getIdAutomotora());
+        if(!automotoraOpt.isPresent()){
+            throw new AutoException("La automotora ingresada no existe");
+        }
+
+        Automotora automotora = automotoraOpt.get(); //Obtengo a la entidad de autmotora
+
+        List<Sucursal> sucursales = automotora.getSucursales(); //Obtengo lista de sucursales de la automotora
 
         GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
         Coordinate[] coordinate = dtAuto.getRecorrido().stream() //Convierto la lista de DtCoordenadas en un arreglo de Coordinate para crear la LINEA
@@ -97,20 +166,27 @@ public class AutoService {
                                                        .toArray(Coordinate[]::new);
         LineString recorridoAuto =  Factory.createLineString(coordinate);
 
-
+        
         DtCoordenada primerCoordenada = dtAuto.getRecorrido().get(0); //Obtengo la primer coordenada del recorrido
         Coordinate coordenadaUbiAuto = new Coordinate(primerCoordenada.getX(), primerCoordenada.getY()); // Creo las coordenadas para el pto de ubicacion del auto
         Point ubiAuto = Factory.createPoint(coordenadaUbiAuto); //Se crea el punto de ubicacion del auto
+       
+        Geometry zonaCobertura = this.calcularBuffer(recorridoAuto, dtAuto.getDist_max());
 
-        Automotora automotoraEntidad = automotora.get(); //Obtengo a la automotora como entidad 
+        boolean haySucursalEnCobertura = sucursales.stream().anyMatch(sucursal-> zonaCobertura.contains(sucursal.getUbicacion()));
 
-        Auto auto = new Auto(dtAuto.getMatricula(), dtAuto.getDist_max(), recorridoAuto, dtAuto.getElectrico(), ubiAuto ,automotoraEntidad);
+        if(!haySucursalEnCobertura){
+            throw new AutoException("EL RECORRIDO NO TIENE A NIGUNA SUCURSAL DENTRO DE SU ZONA DE COBERTURA");
+        }
 
-        automotoraEntidad.agregarAuto(auto);
+        Auto auto = new Auto(dtAuto.getMatricula(), dtAuto.getDist_max(), recorridoAuto, dtAuto.getElectrico(), ubiAuto, automotora);
 
-        automotoraRepository.save(automotoraEntidad); 
+        automotora.agregarAuto(auto);
+        automotoraRepository.save(automotora);
 
         return ResponseEntity.ok("Auto creado correctamente!!");
 
     }
+
+
 }
