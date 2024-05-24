@@ -19,7 +19,8 @@ export default{
             projectionName: 'EPSG:32721',
             projectionDef: '+proj=utm +zone=21 +south +datum=WGS84 +units=m +no_defs +type=crs',
             projectionExtent: [166021.44, 1116915.04, 833978.56, 10000000.0],
-            anchor: [0.517, 150]
+            anchor: [0.517, 150],
+            montevideoExtent: [550943, 6132427, 591081, 6161393]
         }
     },
     methods:{
@@ -43,9 +44,19 @@ export default{
         store.viewReference = this.$refs.view
         store.mapReference = this.$refs.mapref.map
         store.agregarInteraccion("Point")
-        store.modoInteraccion = "punto-solicitud"
-        store.fetchSucursalesMapa()
-        store.fetchAutosMapa()
+        if(store.tipoUsuario == "admin"){
+            store.modoInteraccion = "normal"
+            store.fetchSucursalesMapa()
+            store.fetchAutosMapa()
+        }else{
+            //Aplicar filtro sobre punto de solicitud
+            //Esto se deberia hacer cuando cambia el pto de solicitud tambien
+            store.modoInteraccion = "punto-solicitud"
+            store.fetchSucursalesMapa()
+            store.fetchAutosMapa()
+        }
+        
+        
     },
     computed:{
         obtenerColorUsuario(){
@@ -70,7 +81,7 @@ export default{
         />
 
         <!-- Div overlay -->
-        <div class="overlay" v-show="store.modoInteraccion == 'punto-solicitud'">
+        <div class="overlay">
             <div class="barra-y-boton">
                 <div style="height: 20px;">
                     <v-expansion-panels>
@@ -85,10 +96,10 @@ export default{
                 </v-expansion-panels>
                 </div>
 
-                <BotonCircular @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario"><ubicacion/></BotonCircular>
+                <BotonCircular v-show="store.modoInteraccion == 'punto-solicitud'" @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario"><ubicacion/></BotonCircular>
             </div>
 
-            <BotonCircular class="boton-poligono" :color="obtenerColorUsuario"><poligono/></BotonCircular>
+            <BotonCircular v-show="store.modoInteraccion == 'punto-solicitud'" class="boton-poligono" :color="obtenerColorUsuario"><poligono/></BotonCircular>
         </div>
 
       <ol-view
@@ -97,13 +108,13 @@ export default{
         :rotation="store.rotation"
         :zoom="store.zoom"
         :projection="projectionName"
-        :extend="projectionExtent"
+        :extent="montevideoExtent"
         @change:center="centerChanged"
         @change:resolution="resolutionChanged"
         @change:rotation="rotationChanged"
       />
         <!-- Capas del servidor -->
-        <ol-layer-group>
+        <!-- <ol-layer-group>
             <ol-tile-layer :zIndex="1001" :visible=true minZoom="13">
                 <ol-source-tile-wms
                     url="http://localhost:8080/geoserver/wms"
@@ -120,7 +131,10 @@ export default{
                     :transition="0"
                     :params="{}"/>
             </ol-image-layer>
-        </ol-layer-group>
+        </ol-layer-group> -->
+        <ol-tile-layer>
+            <ol-source-osm />
+        </ol-tile-layer>
 
         <!-- Punto de ubicacion de usuario -->
         <ol-geolocation :projection="projectionName" @change:position="geolocationChanged">

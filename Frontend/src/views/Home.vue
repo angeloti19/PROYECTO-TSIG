@@ -1,12 +1,18 @@
 <script>
 import Mapa from '@/components/Mapa.vue'
 import PanelInformacion from '@/components/PanelInformacion.vue';
+import { store } from '@/store';
 
 export default{
     name: 'home',
     components: {
         Mapa,
         PanelInformacion
+    },
+    data(){
+        return{
+            store
+        }
     },
     mounted(){
 
@@ -17,7 +23,7 @@ export default{
 <template>
     <div class="contenedor">
         <div class="seccion-mapa">
-            <Mapa/>
+            <Mapa :key="store.tipoUsuario"/>
         </div>
         <div class="seccion-info">
            <PanelInformacion/>

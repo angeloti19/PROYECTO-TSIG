@@ -59,7 +59,7 @@ export default {
                     this.$emit('refetch')
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error);
+                    console.log("Error: " + error.response.data);
                     this.isLoading = false
                 }.bind(this));
 
@@ -72,7 +72,7 @@ export default {
         },
         setUbicacion(coordenada){
             //Esta funcion es llamada cuando se coloca el punto en el mapa
-            store.modoInteraccion = "punto-solicitud"
+            store.modoInteraccion = "normal"
             this.x = coordenada[0]
             this.y = coordenada[1]
             this.cambiarVisibilidad(true)

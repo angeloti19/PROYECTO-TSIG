@@ -51,7 +51,7 @@ export default{
                     this.cargandoSucursales = false
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error);
+                    console.log("Error: " + error.response.data);
                     this.cargandoSucursales = false
                 }.bind(this));
         },
@@ -71,7 +71,7 @@ export default{
                     this.cargandoAutos = false
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error);
+                    console.log("Error: " + error.response.data);
                     this.cargandoAutos = false
                 }.bind(this));
         },

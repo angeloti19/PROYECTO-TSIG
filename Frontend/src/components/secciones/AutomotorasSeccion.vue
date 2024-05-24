@@ -34,7 +34,7 @@ export default{
                     });
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error);
+                    console.log("Error: " + error.response.data);
                 }.bind(this));
         },
         mostrarModalNuevaAutomotora(){

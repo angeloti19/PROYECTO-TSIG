@@ -22,7 +22,8 @@ export default {
                 {x: 2, y: 3},
             ],
             isLoading: false,
-            mostrarCoordenadas: false
+            mostrarCoordenadas: false,
+            mensajeError: ""
         }
     },
     emits: ['refetch'],
@@ -50,6 +51,7 @@ export default {
                 {x: 2, y: 3},
             ]
             this.mostrarCoordenadas = false
+            this.mensajeError = ""
         },
         async onSubmitCrearAuto(){
             if(this.matricula == "" || this.recorrido.length == 0 || this.distMax <= 0){
@@ -76,7 +78,8 @@ export default {
                     this.$emit('refetch')
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error);
+                    console.log("Error: " + error.response.data);
+                    this.mensajeError = error.response.data
                     this.isLoading = false
                 }.bind(this));
 
@@ -98,7 +101,7 @@ export default {
                     y: recorrido[i + 1]
                 })
             }
-            store.modoInteraccion = "punto-solicitud"
+            store.modoInteraccion = "normal"
             store.agregarInteraccion("Point")
             this.recorrido = recorridoFormateado
             this.cambiarVisibilidad(true)
@@ -120,6 +123,7 @@ export default {
                     Nuevo auto
                 </template>
                 <template v-slot:contenido>
+                    <span style="color: red; font-size: 10px;">{{ mensajeError }}</span>
                     <form> <!-- Formulario -->
                         <div class="contenedor-formulario">
                             <label for="matricula">Matricula</label>
@@ -163,6 +167,7 @@ export default {
                                 <button style="width: 253px" type="button" @click="marcarRecorrido" class="boton con-borde">Marcar recorrido en mapa</button>
                             </div>
                             <button :disabled="isLoading" type="button" @click="onSubmitCrearAuto" class="boton con-borde primario" style="margin-top: 15px; width: 140px">Confirmar</button>
+
                         </div>
                     </form>
                 </template>

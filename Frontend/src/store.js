@@ -101,7 +101,7 @@ export const store = reactive({
     const capaSucursales = new TileLayer({
       zIndex: 1002,
       visible: true,
- 
+      minZoom: 13,
       source: new TileWMS({
         url: 'http://localhost:8080/geoserver/wms',
         params: {
