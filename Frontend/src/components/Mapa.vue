@@ -1,5 +1,5 @@
 <script>
-import { store } from '../store.js'
+import { store } from '@/store'
 import BotonCircular from './BotonCircular.vue';
 import logo from './icons/logo.vue';
 import poligono from './icons/poligono.vue'

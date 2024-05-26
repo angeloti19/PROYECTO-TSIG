@@ -3,6 +3,10 @@ import axios from 'axios';
 import TileLayer from 'ol/layer/Tile';
 import TileWMS from 'ol/source/TileWMS';
 import Draw from 'ol/interaction/Draw';
+import { Heatmap } from 'ol/layer';
+import VectorSource from 'ol/source/Vector';
+import { GeoJSON } from 'ol/format';
+import VectorLayer from 'ol/layer/Vector';
 
 export const store = reactive({
   //Mapa
@@ -27,6 +31,8 @@ export const store = reactive({
   interaccionRef: undefined,
   filtroSucursal: "",
   filtroAuto: "",
+  heatMapAutos: undefined,
+  mostrandoHeatMapAutos: false,
   //Sesion
   tipoUsuario: undefined,
   //Panel
@@ -207,5 +213,30 @@ export const store = reactive({
           let recorrido = event.feature.values_.geometry.flatCoordinates
           this.marcarRecorridoAuto(recorrido)
       } 
+  },
+  agregarMapaCalorAutos(){
+    // Eliminar la capa anterior si existe
+    if (this.heatMapAutos) {
+      this.mapReference.removeLayer(this.heatMapAutos);
+    }
+    const heatMap = new Heatmap({
+      zIndex: 1020,
+      source: new VectorSource({
+        format: new GeoJSON(),
+        url: 'http://localhost:8080/geoserver/wfs?service=WFS&version=1.1.0' +
+             '&request=GetFeature&typename=tsige:auto&outputFormat=application/json' +
+             '&PropertyName=ubicacion'
+      }),
+      blur: 46,
+      radius: 35,
+    })
+
+    this.mapReference.addLayer(heatMap)
+    this.heatMapAutos = heatMap
+  },
+  quitarMapaCalorAutors(){
+    if (this.heatMapAutos) {
+      this.mapReference.removeLayer(this.heatMapAutos);
+    }
   }
 })

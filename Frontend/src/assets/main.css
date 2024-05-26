@@ -74,6 +74,7 @@ html, body {
   padding-bottom: 0;
 }
 
+
 input[type=text], input[type=email], input[type=password], input[type=number], select{
   background-color: white !important;
   padding: 5px 14px;
