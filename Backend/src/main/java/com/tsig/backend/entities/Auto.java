@@ -1,10 +1,7 @@
 package com.tsig.backend.entities;
 
-import org.locationtech.jts.geom.Geometry; 
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.operation.buffer.BufferOp;
-import org.locationtech.jts.operation.buffer.BufferParameters;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -34,24 +31,9 @@ public class Auto {
     private Point ubicacion;
 
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(/*cascade = CascadeType.ALL, fetch = FetchType.LAZY*/)
     @JoinColumn(name = "automotora_id")
     private Automotora automotora;
-
-    // Método para calcular el buffer
-    public Geometry calcularBuffer() {
-
-        // Crear un objeto BufferParameters para configurar el estilo de la tapa final del buffer
-        BufferParameters bufferParameters = new BufferParameters();
-        // Establecer el estilo de la tapa final del buffer (redondeada)
-        bufferParameters.setEndCapStyle(BufferParameters.CAP_ROUND);
-        
-        // Crear un objeto BufferOp con el recorrido y los parámetros del buffer
-        BufferOp bufferOp = new BufferOp(recorrido, bufferParameters);
-        
-        // Obtener y devolver la geometría resultante del buffer con la distancia máxima especificada
-        return bufferOp.getResultGeometry(dist_max);
-    }
 
     public Auto() {
     }

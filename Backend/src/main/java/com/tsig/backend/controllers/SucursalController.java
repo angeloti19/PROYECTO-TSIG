@@ -1,6 +1,7 @@
 package com.tsig.backend.controllers;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,18 @@ public class SucursalController {
         try {
             DtSucursal dtSucursal = new DtSucursal(sucId, dtCreacionSucursal.getNombre(), dtCreacionSucursal.getCoordenadas(), atmId); 
             return sucursalService.modificarSucursal(dtSucursal);
+        }catch (SucursalException s) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s.getMessage());
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping(path = "/{sucId}")
+    public ResponseEntity<?> eliminarSucursal(@PathVariable("atmId") Long atmId, @PathVariable("sucId") Long sucId) throws SucursalException, Exception{
+        try {
+            return ResponseEntity.ok(sucursalService.eliminarSucursal(atmId, sucId));
         }catch (SucursalException s) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s.getMessage());
         }

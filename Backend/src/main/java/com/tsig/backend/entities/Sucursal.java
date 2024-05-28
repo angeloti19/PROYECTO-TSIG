@@ -21,7 +21,7 @@ public class Sucursal {
     private String nombre;
 
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(/*cascade = CascadeType.ALL, fetch = FetchType.LAZY*/)
     @JoinColumn(name = "automotora_id")
     private Automotora automotora;
 

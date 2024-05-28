@@ -66,4 +66,15 @@ public class AutoController {
         }
     }
 
+    @DeleteMapping(path = "/{autId}")
+    public ResponseEntity<?> eliminarAuto(@PathVariable("atmId") Long atmId, @PathVariable("autId") String autId) throws AutoException, Exception{
+        try {
+            return ResponseEntity.ok(autoService.eliminarAuto(atmId, autId));
+        }catch (AutoException a) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(a.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }

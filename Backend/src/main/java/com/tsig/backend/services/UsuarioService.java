@@ -19,10 +19,9 @@ public class UsuarioService {
     UsuarioRepository usuarioRepo;
     UsuarioConverter usuarioConverter;
 
-
     public ArrayList<Usuario> obtenerUsuarios(){
         return (ArrayList<Usuario>)usuarioRepo.findAll();
-    };
+    }
 
     public Usuario guardarUsuario(Usuario usuario) throws UsuarioException{
         return usuarioRepo.save(usuario);
@@ -36,9 +35,6 @@ public class UsuarioService {
         Usuario user = usuarioRepo.findByCorreo(correo);
         DtUsuario userDto = usuarioConverter.toDto(user);
         return userDto;
-
     }
-
-
 
 }
