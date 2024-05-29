@@ -5,6 +5,7 @@ import NuevaSucursalModal from '../modales/NuevaSucursalModal.vue';
 import NuevoAutoModal from '../modales/NuevoAutoModal.vue';
 import sucursalIcono from '@/components/icons/sucursalIcono.vue'
 import autoIcono from '@/components/icons/autoIcono.vue'
+import ConfirmacionModal from '../modales/ConfirmacionModal.vue';
 
 export default{
     name: 'automotoraSubseccion',
@@ -12,7 +13,8 @@ export default{
         NuevaSucursalModal,
         sucursalIcono,
         NuevoAutoModal,
-        autoIcono
+        autoIcono,
+        ConfirmacionModal
     },
     data(){
         return{
@@ -21,6 +23,9 @@ export default{
             autos: [],
             cargandoSucursales: true,
             cargandoAutos: true,
+            autoAEliminarMatricula: "",
+            sucursalAEliminarId: undefined,
+            sucursalAEliminarNombre: ""
         }
     },
     mounted(){
@@ -36,9 +41,11 @@ export default{
     props:{
         automotoraId : Number
     },
+    emits:['refetch'],
     methods:{
         async fetchSucursales(){
             this.sucursales = []
+            this.cargandoSucursales = true
             const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/sucursal")
                 .then(function (response) {
                     response.data.forEach(sucursal => {
@@ -56,6 +63,7 @@ export default{
                 }.bind(this));
         },
         async fetchAutos(){
+            this.cargandoAutos = true
             this.autos = []
             const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto")
                 .then(function (response) {
@@ -94,6 +102,51 @@ export default{
         },
         mostrarModalNuevoAuto(){
             this.$refs.nuevoAutoModal.abrir()
+        },
+        mostrarConfirmacionEliminarAuto(matricula){
+            this.autoAEliminarMatricula = matricula
+            this.$refs.confirmacionEliminarAuto.abrir()
+        },
+        mostrarConfirmacionEliminarSucursal(id, nombre){
+            this.sucursalAEliminarId = id
+            this.sucursalAEliminarNombre = nombre
+            this.$refs.confirmacionEliminarSucursal.abrir()
+        },
+        async eliminarAuto(matricula){
+            const response = await axios.delete(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto/" + this.autoAEliminarMatricula)
+            .then(function (response) {
+                if(response.data.statusCode != "OK"){
+                    alert("error")
+                }
+                this.fetchAutos()
+                this.store.fetchAutosMapa(`automotora_id = '${this.automotoraId}'`)
+            }.bind(this))
+            .catch(function (error) {
+                console.log("Error: " + error.response.data);
+            }.bind(this));
+        },
+        async eliminarSucursal(){
+            let ultimaSucursal = false
+            if(this.sucursales.length == 1){
+                ultimaSucursal = true
+            }
+            const response = await axios.delete(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/sucursal/" + this.sucursalAEliminarId)
+            .then(function (response) {
+                if(response.data.statusCode != "OK"){
+                    alert("error")
+                }
+                this.store.fetchSucursalesMapa(`automotora_id = '${this.automotoraId}'`)
+                if(!ultimaSucursal){
+                    // alert("no es ultima")
+                    this.fetchSucursales()
+                }else{
+                    // alert("es ultima")
+                    this.$emit("refetch")
+                }
+            }.bind(this))
+            .catch(function (error) {
+                console.log("Error: " + error.response.data);
+            }.bind(this));
         }
     },
 }
@@ -101,6 +154,9 @@ export default{
 
 
 <template>
+    <!-- Otro confirmacion modal para sucursales -->
+    <ConfirmacionModal ref="confirmacionEliminarSucursal" @onConfirm="eliminarSucursal(sucursalAEliminarId)" :mensaje="`Seguro/a que quiere eliminar la sucursal ${ sucursalAEliminarNombre }?`"/>
+    <ConfirmacionModal ref="confirmacionEliminarAuto" @onConfirm="eliminarAuto(autoAEliminarMatricula)" :mensaje="`Seguro/a que quiere eliminar el auto ${ autoAEliminarMatricula }?`"/>
     <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales"/>
     <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos"/>
     <div>
@@ -112,7 +168,7 @@ export default{
             
             <p style="font-weight: 600; margin-bottom: 10px"> Sucursales </p>
             <div v-if="sucursales.length == 0" style="text-align:center; margin-top: 15px; margin-bottom: 15px;">
-                {{cargandoSucursales ? 'Buscando sucursales...' : 'No hay sucursales'}} <!--Nunca deberia no haber sucursales -->
+                {{cargandoSucursales ? 'Buscando sucursales...' : 'No hay sucursales (Esto nunca se deberia ver)'}} <!--Nunca deberia no haber sucursales -->
             </div>
             <template v-for="(sucursal, index) in sucursales">
                 <div class="contenedor-sucursal">
@@ -123,6 +179,7 @@ export default{
                                 {{ sucursal.nombre }}
                             </div>
                         </div>
+                        <v-icon class="close" @click="mostrarConfirmacionEliminarSucursal(sucursal.id, sucursal.nombre)">mdi-window-close</v-icon>
                     </div>
                 </div>
             </template>
@@ -141,6 +198,7 @@ export default{
                                 {{ auto.matricula }}
                             </div>
                         </div>
+                        <v-icon class="close" @click="mostrarConfirmacionEliminarAuto(auto.matricula)">mdi-window-close</v-icon>
                     </div>
                 </div>
             </template>
@@ -186,5 +244,13 @@ export default{
 }
 .contenedor-autos{
     padding: 10px 35px;
+}
+
+.close{
+    color: rgba(255, 255, 255, 0.507);
+    margin-right: 12px;
+}
+.close:hover{
+    color: rgba(255, 255, 255, 0.907);
 }
 </style>

@@ -72,7 +72,7 @@ export default{
                 <div v-if="automotoraSeleccionada == index">
                     <v-divider opacity="0.3" thickness="2" style="margin: 0 10px;"/>
                     <!-- Aqui va componente de automotora -->
-                    <AutomotoraSubseccion :automotoraId="automotora.id"/>
+                    <AutomotoraSubseccion :automotoraId="automotora.id" @refetch="fetchAutomotoras"/>
                 </div>
             </v-expand-transition>
         </div>
