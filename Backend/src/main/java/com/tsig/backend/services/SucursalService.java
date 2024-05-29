@@ -53,8 +53,9 @@ public class SucursalService {
                 sucursalEncontrada = true;
                 
                 dtSucursal = sucursalConverter.toDt(sucursal);
+                break;
             }
-            break;
+            
         }
 
         if (!sucursalEncontrada) {
@@ -195,8 +196,9 @@ public class SucursalService {
                         Point ubicacionSucursal = metodosGeo.crearUbicacionSucursal(dtSucursal);
                         sucursal.setUbicacion(ubicacionSucursal);
                 } 
+                break;
             }
-            break;
+            
         }
 
         if (!sucursalEncontrada) {

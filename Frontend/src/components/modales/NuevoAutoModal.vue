@@ -36,20 +36,28 @@ export default {
             this.visible = valor
         },
         abrir(){
-            this.resetDatos()
+            if(!this.editar){
+                this.resetDatos()
+            }
             this.cambiarVisibilidad(true)
         },
         resetDatos(){
             this.matricula = ""
             this.distMax = 0
             this.tipoAuto = "Combustion"
-            this.x = 0
-            this.y = 0
             this.recorrido = [
                 {x: 0, y: 0},
                 {x: 1, y: 1},
                 {x: 2, y: 3},
             ]
+            this.mostrarCoordenadas = false
+            this.mensajeError = ""
+        },
+        setDatosEditar(matricula, distMax, tipoAuto, recorrido){
+            this.matricula = matricula
+            this.distMax = distMax
+            this.tipoAuto = tipoAuto
+            this.recorrido = recorrido
             this.mostrarCoordenadas = false
             this.mensajeError = ""
         },
@@ -84,6 +92,36 @@ export default {
                 }.bind(this));
 
         },
+        async onSubmitEditarAuto(){
+            if(this.matricula == "" || this.recorrido.length == 0 || this.distMax <= 0){
+                alert("datos incorrectos")
+                return
+            }
+            this.isLoading = true
+            //Hace el pedido
+            let electrico = true
+            if(this.tipoAuto == "Combustion"){
+                electrico = false
+            }
+            const data = {
+                "matricula": this.matricula,
+                "dist_max": this.distMax,
+                "electrico": electrico,
+                "recorrido": this.recorrido
+            }
+            const response = await axios.put(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto/" + this.matricula, data)
+                .then(async function (response) {
+                    this.autoCreado = true
+                    this.isLoading = false
+                    this.store.fetchAutosMapa()
+                    this.$emit('refetch')
+                }.bind(this))
+                .catch(function (error) {
+                    console.log("Error: " + error.response.data);
+                    this.mensajeError = error.response.data
+                    this.isLoading = false
+                }.bind(this));
+        },
         marcarRecorrido(){
             //Esta funcion inicia el modo de interaccion para colocar el recorrido en el mapa
             store.funcionRecorridoAuto = this.setRecorrido
@@ -108,7 +146,8 @@ export default {
         }
     },
     props: {
-        automotoraId : Number
+        automotoraId : Number,
+        editar : Boolean
     },
     mounted() {
     }
@@ -120,14 +159,16 @@ export default {
         <template v-if="!autoCreado"> <!-- Auto por agregar -->
             <ContenedorCerrable style="width: 462px;" @cerrar="cambiarVisibilidad(false)">
                 <template v-slot:titulo>
-                    Nuevo auto
+                    {{!editar ? 'Nuevo auto' : 'Editar auto'}}
                 </template>
                 <template v-slot:contenido>
                     <span style="color: red; font-size: 10px;">{{ mensajeError }}</span>
                     <form> <!-- Formulario -->
                         <div class="contenedor-formulario">
-                            <label for="matricula">Matricula</label>
-                            <input v-model="matricula" name="matricula" id="matricula" type="text">
+                            <template v-if="!editar">
+                                <label for="matricula">Matricula</label>
+                                <input v-model="matricula" name="matricula" id="matricula" type="text">
+                            </template>
                             <label for="distMax">Distancia máxima de desvío (m)</label>
                             <input v-model="distMax" name="distMax" id="distMax" type="number" min="1">
 
@@ -166,7 +207,7 @@ export default {
                                 </v-expand-transition>
                                 <button style="width: 253px" type="button" @click="marcarRecorrido" class="boton con-borde">Marcar recorrido en mapa</button>
                             </div>
-                            <button :disabled="isLoading" type="button" @click="onSubmitCrearAuto" class="boton con-borde primario" style="margin-top: 15px; width: 140px">Confirmar</button>
+                            <button :disabled="isLoading" type="button" @click="!editar ? onSubmitCrearAuto() : onSubmitEditarAuto()" class="boton con-borde primario" style="margin-top: 15px; width: 140px">Confirmar</button>
 
                         </div>
                     </form>
@@ -176,11 +217,11 @@ export default {
         <template v-else> <!-- Auto agregado -->
             <ContenedorCerrable style="padding-bottom: 34px;" @cerrar="cambiarVisibilidad(false)">
                 <template v-slot:titulo>
-                    Auto agregado
+                    {{!editar ? 'Auto agregado' : 'Auto editado'}}
                 </template>
                 <template v-slot:contenido>
                     <div style="margin-top:15px">
-                        <p>Se agregó el auto exitosamente.</p>
+                        <p>{{!editar ? 'Se agregó el auto exitosamente.' : 'Se editó el auto exitosamente.'}}</p>
                     </div>
                     <button style="display: block; margin-top: 25px;" @click="cambiarVisibilidad(false)">
                         Cerrar</button>

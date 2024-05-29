@@ -6,6 +6,7 @@ import NuevoAutoModal from '../modales/NuevoAutoModal.vue';
 import sucursalIcono from '@/components/icons/sucursalIcono.vue'
 import autoIcono from '@/components/icons/autoIcono.vue'
 import ConfirmacionModal from '../modales/ConfirmacionModal.vue';
+import editarIcono from '@/components/icons/editarIcono.vue'
 
 export default{
     name: 'automotoraSubseccion',
@@ -14,7 +15,8 @@ export default{
         sucursalIcono,
         NuevoAutoModal,
         autoIcono,
-        ConfirmacionModal
+        ConfirmacionModal,
+        editarIcono
     },
     data(){
         return{
@@ -112,6 +114,27 @@ export default{
             this.sucursalAEliminarNombre = nombre
             this.$refs.confirmacionEliminarSucursal.abrir()
         },
+        mostrarModalEditarAuto(index){
+            let matricula = this.autos[index].matricula
+            let distMax = this.autos[index].dist_max
+            let tipoAuto = "Combustion"
+            if(this.autos[index].electrico){
+                tipoAuto = "Electrico"
+            }
+            let recorrido = this.autos[index].recorrido
+            
+            this.$refs.editarAutoModal.setDatosEditar(matricula, distMax, tipoAuto, recorrido)
+            this.$refs.editarAutoModal.abrir()
+        },
+        mostrarModalEditarSucursal(index){
+            let id = this.sucursales[index].id
+            let nombre = this.sucursales[index].nombre
+            let x = this.sucursales[index].coordenadas.x
+            let y = this.sucursales[index].coordenadas.y
+            
+            this.$refs.editarSucursalModal.setDatosEditar(id, nombre, x, y)
+            this.$refs.editarSucursalModal.abrir()
+        },
         async eliminarAuto(matricula){
             const response = await axios.delete(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto/" + this.autoAEliminarMatricula)
             .then(function (response) {
@@ -154,11 +177,12 @@ export default{
 
 
 <template>
-    <!-- Otro confirmacion modal para sucursales -->
     <ConfirmacionModal ref="confirmacionEliminarSucursal" @onConfirm="eliminarSucursal(sucursalAEliminarId)" :mensaje="`Seguro/a que quiere eliminar la sucursal ${ sucursalAEliminarNombre }?`"/>
     <ConfirmacionModal ref="confirmacionEliminarAuto" @onConfirm="eliminarAuto(autoAEliminarMatricula)" :mensaje="`Seguro/a que quiere eliminar el auto ${ autoAEliminarMatricula }?`"/>
     <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales"/>
+    <NuevaSucursalModal ref="editarSucursalModal" editar :automotoraId="automotoraId" @refetch="fetchSucursales"/>
     <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos"/>
+    <NuevoAutoModal ref="editarAutoModal" editar :automotoraId="automotoraId" @refetch="fetchAutos"/>
     <div>
         <div class="contenedor-sucursales"> <!-- Sucursales -->
             <div style="display:flex; justify-content: space-around; margin-bottom: 8px;">
@@ -179,7 +203,12 @@ export default{
                                 {{ sucursal.nombre }}
                             </div>
                         </div>
-                        <v-icon class="close" @click="mostrarConfirmacionEliminarSucursal(sucursal.id, sucursal.nombre)">mdi-window-close</v-icon>
+                        <div style="display: flex;justify-content: space-around;align-items: center;">
+                            <div @click="mostrarModalEditarSucursal(index)" class="edit">
+                                <editarIcono style="width: 17px; height: 17px;"/>
+                            </div>
+                            <v-icon class="close" @click="mostrarConfirmacionEliminarSucursal(sucursal.id, sucursal.nombre)">mdi-window-close</v-icon>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -198,7 +227,12 @@ export default{
                                 {{ auto.matricula }}
                             </div>
                         </div>
-                        <v-icon class="close" @click="mostrarConfirmacionEliminarAuto(auto.matricula)">mdi-window-close</v-icon>
+                        <div style="display: flex;justify-content: space-around;align-items: center;">
+                            <div @click="mostrarModalEditarAuto(index)" class="edit">
+                                <editarIcono style="width: 17px; height: 17px;"/>
+                            </div>
+                            <v-icon class="close" @click="mostrarConfirmacionEliminarAuto(auto.matricula)">mdi-window-close</v-icon>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -252,5 +286,14 @@ export default{
 }
 .close:hover{
     color: rgba(255, 255, 255, 0.907);
+}
+
+.edit{
+    opacity: 0.5;
+    padding-top: 5px;
+    margin-right: 8px;
+}
+.edit:hover{
+    opacity: 1;
 }
 </style>

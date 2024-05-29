@@ -50,8 +50,9 @@ public class AutoService {
             if(auto.getMatricula().equals(autId)){
                 autoEncontrado = true;
                 dtAuto = autoConverter.toDto(auto);
+                break;
             }
-            break;
+            
         }
 
         if(!autoEncontrado){
@@ -155,8 +156,10 @@ public class AutoService {
                 auto.setDist_max(dtAuto.getDist_max());
                 auto.setRecorrido(recorridoAutoEditado);
                 auto.setUbicacion(ubiAutoEditado);
+                auto.setElectrico(dtAuto.getElectrico());
+                break;
             }
-            break;
+            
         }
 
         if(!autoEncontrado){

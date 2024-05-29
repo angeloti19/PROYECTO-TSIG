@@ -46,14 +46,17 @@ export default{
         store.agregarInteraccion("Point")
         if(store.tipoUsuario == "admin"){
             store.modoInteraccion = "normal"
-            store.fetchSucursalesMapa()
-            store.fetchAutosMapa()
+            store.fetchSucursalesMapa("") //Hacer un fetch con filtro "" hace que sobreescriba el filtro anterior
+            store.fetchAutosMapa("")
         }else{
             //Aplicar filtro sobre punto de solicitud
             //Esto se deberia hacer cuando cambia el pto de solicitud tambien
             store.modoInteraccion = "punto-solicitud"
-            store.fetchSucursalesMapa()
-            store.fetchAutosMapa()
+            // store.fetchSucursalesMapa()
+            // store.fetchAutosMapa("DWITHIN(recorrido,POINT(578673 6140805), dist_max, meters)")
+
+            store.fetchSucursalesMapa("")
+            store.fetchAutosMapa("")
         }
         
         
@@ -137,7 +140,7 @@ export default{
         </ol-tile-layer>
 
         <!-- Punto de ubicacion de usuario -->
-        <ol-geolocation :projection="projectionName" @change:position="geolocationChanged">
+        <ol-geolocation :projection="projectionName" @change:position="geolocationChanged" v-if="store.modoInteraccion == 'punto-solicitud'">
             <template>
                 <ol-vector-layer :zIndex="1002">
                     <ol-source-vector>
@@ -159,7 +162,7 @@ export default{
         </ol-geolocation>
         
         <!--Punto de solicitud -->
-        <ol-vector-layer :zIndex="1009">
+        <ol-vector-layer :zIndex="1009" v-if="store.modoInteraccion == 'punto-solicitud'">
             <ol-source-vector>
                 <ol-feature ref="posicionSolicitud">
                     <ol-geom-point :coordinates="store.puntoSolicitud"></ol-geom-point>

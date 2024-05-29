@@ -16,7 +16,9 @@ export default {
             nombre: "",
             x: 0,
             y: 0,
-            isLoading: false
+            isLoading: false,
+            id: undefined,
+            mensajeError: ""
         }
     },
     emits: ['refetch'],
@@ -29,13 +31,23 @@ export default {
             this.visible = valor
         },
         abrir(){
-            this.resetDatos()
+            if(!this.editar){
+                this.resetDatos()
+            }
             this.cambiarVisibilidad(true)
         },
         resetDatos(){
             this.nombre = ""
             this.x = 0
             this.y = 0
+            this.mensajeError = ""
+        },
+        setDatosEditar(id, nombre, x, y){
+            this.nombre = nombre
+            this.x = x
+            this.y = y
+            this.id = id
+            this.mensajeError = ""
         },
         async onSubmitCrearSucursal(){
             if(this.nombre == "" || this.x == "" || this.y == ""){
@@ -59,7 +71,34 @@ export default {
                     this.$emit('refetch')
                 }.bind(this))
                 .catch(function (error) {
-                    console.log("Error: " + error.response.data);
+                    this.mensajeError = error.response.data
+                    this.isLoading = false
+                }.bind(this));
+
+        },
+        async onSubmitEditarSucursal(){
+            if(this.nombre == "" || this.x == "" || this.y == ""){
+                alert("datos incorrectos")
+                return
+            }
+            this.isLoading = true
+            //Hace el pedido
+            const data = {
+                "nombre": this.nombre,
+                "coordenadas": {
+                    "x": this.x,
+                    "y": this.y
+                }
+            }
+            const response = await axios.put(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/sucursal/" + this.id, data)
+                .then(async function (response) {
+                    this.sucursalCreada = true
+                    this.isLoading = false
+                    this.store.fetchSucursalesMapa()
+                    this.$emit('refetch')
+                }.bind(this))
+                .catch(function (error) {
+                    this.mensajeError = error.response.data
                     this.isLoading = false
                 }.bind(this));
 
@@ -79,7 +118,8 @@ export default {
         }
     },
     props: {
-        automotoraId : Number
+        automotoraId : Number,
+        editar : Boolean
     },
     mounted() {
     }
@@ -91,9 +131,10 @@ export default {
         <template v-if="!sucursalCreada"> <!-- Sucursal por agregar -->
             <ContenedorCerrable style="width: 462px;" @cerrar="cambiarVisibilidad(false)">
                 <template v-slot:titulo>
-                    Nueva sucursal
+                    {{!editar ? 'Nueva sucursal' : 'Editar sucursal'}}
                 </template>
                 <template v-slot:contenido>
+                    <span style="color: red; font-size: 10px;">{{ mensajeError }}</span>
                     <form> <!-- Formulario -->
                         <div class="contenedor-formulario">
                             <label for="nombre">Nombre</label>
@@ -112,7 +153,7 @@ export default {
                                 </div>
                                 <button style="width: 253px" type="button" @click="marcarUbicacion" class="boton con-borde">Marcar ubicación en mapa</button>
                             </div>
-                            <button :disabled="isLoading" type="button" @click="onSubmitCrearSucursal" class="boton con-borde primario" style="margin-top: 15px; width: 140px">Confirmar</button>
+                            <button :disabled="isLoading" type="button" @click="!editar ? onSubmitCrearSucursal() : onSubmitEditarSucursal()" class="boton con-borde primario" style="margin-top: 15px; width: 140px">Confirmar</button>
                         </div>
                     </form>
                 </template>
@@ -121,11 +162,11 @@ export default {
         <template v-else> <!-- Sucursal agregada -->
             <ContenedorCerrable style="padding-bottom: 34px;" @cerrar="cambiarVisibilidad(false)">
                 <template v-slot:titulo>
-                    Sucursal agregada
+                    {{!editar ? 'Sucursal agregada' : 'Sucursal editada'}}
                 </template>
                 <template v-slot:contenido>
                     <div style="margin-top:15px">
-                        <p>Se agregó la sucursal exitosamente.</p>
+                        <p>{{!editar ? 'Se agregó la sucursal exitosamente.' : 'Se editó la sucursal exitosamente.'}}</p>
                     </div>
                     <button style="display: block; margin-top: 25px;" @click="cambiarVisibilidad(false)">
                         Cerrar</button>
