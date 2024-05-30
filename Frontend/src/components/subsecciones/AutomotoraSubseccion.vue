@@ -7,6 +7,7 @@ import sucursalIcono from '@/components/icons/sucursalIcono.vue'
 import autoIcono from '@/components/icons/autoIcono.vue'
 import ConfirmacionModal from '../modales/ConfirmacionModal.vue';
 import editarIcono from '@/components/icons/editarIcono.vue'
+import AlertModal from '../modales/AlertModal.vue';
 
 export default{
     name: 'automotoraSubseccion',
@@ -16,7 +17,8 @@ export default{
         NuevoAutoModal,
         autoIcono,
         ConfirmacionModal,
-        editarIcono
+        editarIcono,
+        AlertModal
     },
     data(){
         return{
@@ -169,6 +171,8 @@ export default{
             }.bind(this))
             .catch(function (error) {
                 console.log("Error: " + error.response.data);
+                this.$refs.alertModal.setContenido("Error", error.response.data)
+                this.$refs.alertModal.abrir()
             }.bind(this));
         }
     },
@@ -179,6 +183,7 @@ export default{
 <template>
     <ConfirmacionModal ref="confirmacionEliminarSucursal" @onConfirm="eliminarSucursal(sucursalAEliminarId)" :mensaje="`Seguro/a que quiere eliminar la sucursal ${ sucursalAEliminarNombre }?`"/>
     <ConfirmacionModal ref="confirmacionEliminarAuto" @onConfirm="eliminarAuto(autoAEliminarMatricula)" :mensaje="`Seguro/a que quiere eliminar el auto ${ autoAEliminarMatricula }?`"/>
+    <AlertModal ref="alertModal"/>
     <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales"/>
     <NuevaSucursalModal ref="editarSucursalModal" editar :automotoraId="automotoraId" @refetch="fetchSucursales"/>
     <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos"/>
