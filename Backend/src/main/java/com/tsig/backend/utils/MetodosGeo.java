@@ -1,6 +1,8 @@
 package com.tsig.backend.utils;
 
 
+import java.util.List;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -13,6 +15,7 @@ import org.locationtech.jts.operation.buffer.BufferParameters;
 import com.tsig.backend.datatypes.DtAuto;
 import com.tsig.backend.datatypes.DtCoordenada;
 import com.tsig.backend.datatypes.DtSucursal;
+import com.tsig.backend.entities.*;
 
 public class MetodosGeo {
 
@@ -51,6 +54,18 @@ public class MetodosGeo {
 
         // Obtener y devolver la geometría resultante del buffer con la distancia máxima especificada
         return bufferOp.getResultGeometry(dist_max);
+    }
+
+    public boolean estaDentroDeBuffer(Point ubicacion, Geometry buffer) {
+        return buffer.contains(ubicacion);
+    }
+   
+    // Validacion: que tenga otra sucursal dentro la zona de cobertura que no sea la que pasamos por parametro
+    public boolean tieneOtraSucursalDentroDeBuffer(List<Sucursal> sucursales, Long sucId, Geometry buffer) {
+        boolean retorno  = sucursales.stream() 
+                                    .filter(sucursal -> !sucursal.getId().equals(sucId)) //Filtro por sucursales diferentes a la que me pasaron por parametro
+                                    .anyMatch(sucursal -> estaDentroDeBuffer(sucursal.getUbicacion(), buffer)); //Busco si hace match alguna sucursal utilizando la funcion 'estaDentroDeBuffer' pasandole la ubicacion de la sucursal y buffer. Si hace match devuelve true
+        return retorno;
     }
 
 }
