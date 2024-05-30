@@ -112,3 +112,6 @@ button:disabled::after{
   }
 }
 
+.v-input__details{
+  display:none!important;
+}

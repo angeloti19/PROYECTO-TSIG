@@ -7,6 +7,9 @@ import { Heatmap } from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
 import { GeoJSON } from 'ol/format';
 import VectorLayer from 'ol/layer/Vector';
+import { WKT } from 'ol/format';
+import { Style } from 'ol/style';
+import { Stroke, Fill } from 'ol/style';
 
 export const store = reactive({
   //Mapa
@@ -32,7 +35,9 @@ export const store = reactive({
   filtroSucursal: "",
   filtroAuto: "",
   heatMapAutos: undefined,
+  zonaSinCobertura: undefined,
   mostrandoHeatMapAutos: false,
+  mostrandoZonaSinCobertura: false,
   //Sesion
   tipoUsuario: undefined,
   //Panel
@@ -237,6 +242,72 @@ export const store = reactive({
   quitarMapaCalorAutors(){
     if (this.heatMapAutos) {
       this.mapReference.removeLayer(this.heatMapAutos);
+    }
+  },
+  async agregarZonaSinCobertura(){
+    // Eliminar la capa anterior si existe
+    if (this.zonaSinCobertura) {
+      this.mapReference.removeLayer(this.zonaSinCobertura);
+    }
+    //Primero se busca el WKT del servidor
+    const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/consultas/zonasSinCobertura")
+      .then(function (response) {
+        const zona = response.data
+        console.log(zona)
+        const format = new WKT();
+        const feature = format.readFeature(zona, {
+          dataProjection: 'EPSG:32721'
+        });
+
+        const zonaStyle = new Style({
+          stroke: new Stroke({
+            color: 'red',
+            width: 2,
+          }),
+          fill: new Fill({
+            color: 'rgba(255, 0, 0, 0.2)',
+          }),
+        });
+        
+        const vector = new VectorLayer({
+          source: new VectorSource({
+            features: [feature],
+          }),
+          style: [zonaStyle]
+        });
+
+        this.mapReference.addLayer(vector)
+        this.zonaSinCobertura = vector
+      }.bind(this))
+      .catch(function (error) {
+        console.log(error)
+        console.log("Error: " + error.response.data);
+      }.bind(this));
+
+
+    // Eliminar la capa anterior si existe
+
+    // if (this.zonaSinCobertura) {
+    //   this.mapReference.removeLayer(this.zonaSinCobertura);
+    // }
+    // const zonaSinCobertura = new Heatmap({
+    //   zIndex: 1020,
+    //   source: new VectorSource({
+    //     format: new GeoJSON(),
+    //     url: 'http://localhost:8080/geoserver/wfs?service=WFS&version=1.1.0' +
+    //          '&request=GetFeature&typename=tsige:auto&outputFormat=application/json' +
+    //          '&PropertyName=ubicacion'
+    //   }),
+    //   blur: 46,
+    //   radius: 35,
+    // })
+
+    // this.mapReference.addLayer(zonaSinCobertura)
+    // this.zonaSinCobertura = zonaSinCobertura
+  },
+  quitarZonaSinCobertura(){
+    if (this.zonaSinCobertura) {
+      this.mapReference.removeLayer(this.zonaSinCobertura);
     }
   }
 })
