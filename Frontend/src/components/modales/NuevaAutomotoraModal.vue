@@ -75,7 +75,7 @@ export default {
         },
         setUbicacion(coordenada){
             //Esta funcion es llamada cuando se coloca el punto en el mapa
-            store.modoInteraccion = "normal"
+            store.modoInteraccion = undefined
             this.x = coordenada[0]
             this.y = coordenada[1]
             this.cambiarVisibilidad(true)

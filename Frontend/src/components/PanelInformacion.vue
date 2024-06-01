@@ -42,8 +42,8 @@ export default{
                             id: 'automotoras',
                             tipoUsuario: 'admin'
                             },
-                            {titulo: 'Autos disponibles',
-                            tooltip: 'Autos',
+                            {titulo: 'Solicitar auto',
+                            tooltip: 'Solicitar auto',
                             icono: 'mdi-car-side',
                             id: 'autos',
                             tipoUsuario: 'anonimo'
@@ -104,7 +104,7 @@ export default{
 
 <template>
     <div class="base" :style="{ 'background-color': obtenerColorUsuario}">
-        <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'normal'">
+        <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino' || store.modoInteraccion == undefined">
             <div class="seccion-contenido">
                 <div class="title-bar">
                     <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
@@ -146,6 +146,10 @@ export default{
             <p>Seleccione el recorrido del auto.</p>
             <p>Para terminar el recorrido, haga click en el último punto.</p>
         </div>
+        <div class="info-modo" v-if="store.modoInteraccion == 'poligono-autos'">
+            <p>Dibuje una zona para ver los autos que se encuentran en ella.</p>
+            <p>Para completar el polígono, haga click en el primer punto.</p>
+        </div>
         
     </div>
 </template>
@@ -178,7 +182,6 @@ export default{
     overflow-x: hidden;
     overflow-y: auto;
     height: calc(100% - 50px);
-    position: relative;
 }
 
 .seccion{

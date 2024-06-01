@@ -5,13 +5,15 @@ import logo from './icons/logo.vue';
 import poligono from './icons/poligono.vue'
 import ubicacion from './icons/ubicacion.vue'
 import Map from "ol/Map";
+import BusquedaEspecifica from './BusquedaEspecifica.vue';
 
 export default{
     name: 'mapa',
     components: {
         BotonCircular,
         poligono,
-        ubicacion
+        ubicacion,
+        BusquedaEspecifica
     },
     data(){
         return{
@@ -45,7 +47,7 @@ export default{
         store.mapReference = this.$refs.mapref.map
         store.agregarInteraccion("Point")
         if(store.tipoUsuario == "admin"){
-            store.modoInteraccion = "normal"
+            store.modoInteraccion = undefined
             store.fetchSucursalesMapa("") //Hacer un fetch con filtro "" hace que sobreescriba el filtro anterior
             store.fetchAutosMapa("")
         }else{
@@ -86,23 +88,35 @@ export default{
         <!-- Div overlay -->
         <div class="overlay">
             <div class="barra-y-boton">
-                <div style="height: 20px;">
+                <div v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino'" style="height: 20px;">
                     <v-expansion-panels>
                     <v-expansion-panel
-                        title="Cambiar punto de solicitud"
+                        :title="store.tipoUsuario == 'anonimo' ? 'Cambiar punto de solicitud' : 'Búsqueda rápida'"
                         style="width: 275px;"
                     >
                     <v-expansion-panel-text>
-                        Aqui se cambiaria el punto de solicitud por direccion o cruce
+                        <BusquedaEspecifica/>
                     </v-expansion-panel-text>
                     </v-expansion-panel>
                 </v-expansion-panels>
                 </div>
 
-                <BotonCircular v-show="store.modoInteraccion == 'punto-solicitud'" @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario"><ubicacion/></BotonCircular>
+                <BotonCircular v-show="store.tipoUsuario == 'anonimo' && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino')" @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario"><ubicacion/></BotonCircular>
+            
+                <v-btn-toggle
+                v-if="store.tipoUsuario == 'anonimo'"
+                rounded="xl"
+                density="comfortable"
+                v-model="store.modoInteraccion"
+                style="margin-top: 3px; margin-left: 10px; border-color: rgba(0, 0, 0, 0.387); border-width: 2px; border-style: solid;"
+                >
+                    <v-btn disabled icon="mdi-map-marker"></v-btn>
+                    <v-btn value="punto-solicitud" style="text-transform: none; padding: 5px;">Solicitud</v-btn>
+                    <v-btn value="punto-destino" style="text-transform: none; padding: 5px; padding-right: 10px;">Destino</v-btn>
+                </v-btn-toggle>
             </div>
 
-            <BotonCircular v-show="store.modoInteraccion == 'punto-solicitud'" class="boton-poligono" :color="obtenerColorUsuario"><poligono/></BotonCircular>
+            <BotonCircular v-show="store.tipoUsuario == 'anonimo'" @click="store.iniciarBusquedaPoligono()" class="boton-poligono" :color="obtenerColorUsuario"><poligono/></BotonCircular>
         </div>
 
       <ol-view
@@ -162,7 +176,7 @@ export default{
         </ol-geolocation>
         
         <!--Punto de solicitud -->
-        <ol-vector-layer :zIndex="1009" v-if="store.modoInteraccion == 'punto-solicitud'">
+        <ol-vector-layer :zIndex="1009" v-if="store.puntoSolicitud != undefined && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino')">
             <ol-source-vector>
                 <ol-feature ref="posicionSolicitud">
                     <ol-geom-point :coordinates="store.puntoSolicitud"></ol-geom-point>
@@ -173,19 +187,18 @@ export default{
             </ol-source-vector>
         </ol-vector-layer>
 
-        <!-- Interaccion para obtener coordenadas de cursor -->
-        <!-- <ol-interaction-draw
-          ref="indicadorClick"
-          :type="store.tipoInteraccion"
-          @drawstart="drawstart"
-          @drawend="drawend"
-        >
-        </ol-interaction-draw> -->
-
-        
+        <!--Punto de destino -->
+        <ol-vector-layer :zIndex="1009" v-if="store.puntoDestino != undefined && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino')">
+            <ol-source-vector>
+                <ol-feature ref="posicionDestino">
+                    <ol-geom-point :coordinates="store.puntoDestino"></ol-geom-point>
+                    <ol-style>
+                        <ol-style-icon src="PuntoDestino.png" :anchor=anchor anchorXUnits="fraction" anchorYUnits="pixels" :scale="0.28"></ol-style-icon>      
+                    </ol-style>
+                </ol-feature>
+            </ol-source-vector>
+        </ol-vector-layer>  
     </ol-map>
-
-    
 
   </template>
   
@@ -209,6 +222,7 @@ export default{
     border: 5px solid rgba(255, 255, 255, 0);
     border-top-color: #FF3A69;
     animation: spinner 0.6s linear infinite;
+    pointer-events: none;
   }
   
   @keyframes spinner {

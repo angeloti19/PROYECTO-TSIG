@@ -8,8 +8,7 @@ export default{
     },
     data(){
         return{
-            store,
-            calleFiltro: ""
+            store
         }
     },
     mounted(){
@@ -43,6 +42,7 @@ export default{
         <br>
         <p><span class="nombre">geolocation:</span> {{ store.currentGeolocation}}</p>
         <p><span class="nombre">pto solicitud:</span> {{ store.puntoSolicitud}}</p>
+        <p><span class="nombre">pto destino:</span> {{ store.puntoDestino}}</p>
         <p><span class="nombre">centro acutal:</span> {{ store.currentCenter}}</p>
         <p><span class="nombre">zoom actual:</span> {{ store.currentZoom}}</p>
         <p><span class="nombre">tipo usuario:</span> {{ store.tipoUsuario}}</p>
@@ -51,15 +51,11 @@ export default{
         <button class="boton" @click="store.usarUbicacion">Ir a ubicacion</button>
         <button class="boton" @click="probarConexion">Probar conexion</button>
         <button class="boton" @click="store.callePtoSolicitud">Calle en punto de solicitud</button>
-        <p><span class="nombre">Agregar calle por filtro</span></p>
-        <input v-model="calleFiltro" type="text" placeholder="Escriba el nombre de la calle">
-        <!-- Botón para agregar la capa con filtro -->
-        <button @click="store.agregarCapaConFiltro(calleFiltro)">Agregar Capa con Filtro</button>
         <span class="nombre">Tipo interaccion:</span>
         <button class="boton" @click="store.agregarInteraccion('Point')">Cambiar a punto</button>
         <button class="boton" @click="store.agregarInteraccion('LineString')">Cambiar a linea</button>
         <span class="nombre">Modo interaccion:</span>
-        <button class="boton" @click="store.modoInteraccion = 'normal'">Cambiar a modo normal</button>
+        <button class="boton" @click="store.modoInteraccion = undefined">Cambiar a modo normal</button>
         <button class="boton" @click="store.modoInteraccion = 'punto-solicitud'">Cambiar a modo pto solicitud</button>
         <button class="boton" @click="store.modoInteraccion = 'punto-sucursal'">Cambiar a modo pto sucursal</button>
         <button class="boton" @click="store.modoInteraccion = 'recorrido-auto'">Cambiar a modo recorrido auto</button>

@@ -84,6 +84,12 @@ input[type=text], input[type=email], input[type=password], input[type=number], s
 
 }
 
+input[type=text].sobre-blanco, input[type=email].sobre-blanco, input[type=password].sobre-blanco, input[type=number].sobre-blanco, select.sobre-blanco{
+  border: 1px solid #0000009a;
+  
+}
+
+
 button:disabled{
   background-color: rgba(0, 0, 0, 0.252);
   color: rgba(255, 255, 255, 0);

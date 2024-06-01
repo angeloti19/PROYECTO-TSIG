@@ -139,7 +139,7 @@ export default {
                     y: recorrido[i + 1]
                 })
             }
-            store.modoInteraccion = "normal"
+            store.modoInteraccion = undefined
             store.agregarInteraccion("Point")
             this.recorrido = recorridoFormateado
             this.cambiarVisibilidad(true)

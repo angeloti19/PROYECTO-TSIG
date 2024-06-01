@@ -14,7 +14,6 @@ import { Stroke, Fill } from 'ol/style';
 export const store = reactive({
   //Mapa
   currentGeolocation: [],
-  puntoSolicitud: [577026.5895504038, 6138181.158768445],
   center: [575628.150457, 6141793.265429],
   zoom: 14,
   rotation: 0,
@@ -22,28 +21,35 @@ export const store = reactive({
   currentZoom: 14,
   currentRotation: 0,
   currentResolution: 0,
-  puntoSolicitud: [577026.5895504038, 6138181.158768445],
+  puntoSolicitud: undefined,
+  puntoDestino: undefined,
   currentGeolocation: [],
+  //Referencias 
   viewReference: undefined,
   mapReference: undefined,
-  capaConFiltroAnterior: undefined,
+  interaccionRef: undefined,
+  //Capas
   capaSucursales: undefined,
   capaAutos: undefined,
-  modoInteraccion: "normal",
-  tipoInteraccion: "",
-  interaccionRef: undefined,
-  filtroSucursal: "",
-  filtroAuto: "",
   heatMapAutos: undefined,
   zonaSinCobertura: undefined,
+  //Filtros de capa
+  filtroSucursal: "",
+  filtroAuto: "",
+  //Condicionales de visibilidad de capa
   mostrandoHeatMapAutos: false,
   mostrandoZonaSinCobertura: false,
+  //Manejo de estado de interaccion
+  modoInteraccion: undefined,
+  tipoInteraccion: "",
   //Sesion
   tipoUsuario: undefined,
   //Panel
   seccionActual: 'bienvenida',
+  //Referencias a funciones callback
   funcionUbicacionSucursal: undefined,
   funcionRecorridoAuto: undefined,
+  //Metodos
   usarUbicacion() {
     if (this.currentGeolocation.length == 0) {
       alert("Permita acceso a su ubicación para utilizar geolocalización.")
@@ -52,7 +58,7 @@ export const store = reactive({
     this.puntoSolicitud = this.currentGeolocation
     this.viewReference.animate({ center: this.currentGeolocation })
   },
-  async callePtoSolicitud() {
+  async callePtoSolicitud() { //Experimento
     const pixel = this.mapReference.getPixelFromCoordinate(this.puntoSolicitud)
     const width = this.mapReference.getSize()[0]
     const height = this.mapReference.getSize()[1]
@@ -66,38 +72,6 @@ export const store = reactive({
       .catch(function (error) {
         console.log("Error: " + error);
       }.bind(this));
-  },
-  agregarCapaConFiltro(valorFiltro) {
-
-    // Verificar si se proporciona un valor de filtro válido
-    if (valorFiltro.trim() === '') {
-      alert('ingrese un nombre de calle válido');
-      return;
-    }
-    // Eliminar la capa anterior si existe
-    if (this.capaConFiltroAnterior) {
-      this.mapReference.removeLayer(this.capaConFiltroAnterior);
-    }
-
-    const nuevaCapa = new TileLayer({
-      zIndex: 1001,
-      visible: true,
-      minZoom: 13,
-      source: new TileWMS({
-        url: 'http://localhost:8080/geoserver/wms',
-        params: {
-          'LAYERS': 'tsige:t01_ejes',
-          'CQL_FILTER': `nom_calle = '${valorFiltro}'`
-        },
-        serverType: 'geoserver',
-        transition: 0
-      })
-    });
-
-    // Añade la nueva capa al mapa utilizando la referencia del mapa
-    this.mapReference.addLayer(nuevaCapa);
-    // Actualizar la referencia de la capa anterior
-    this.capaConFiltroAnterior = nuevaCapa;
   },
   fetchSucursalesMapa(filtro) {
     // Si se proporciona un filtro, se utiliza
@@ -193,8 +167,6 @@ export const store = reactive({
     this.interaccionRef = interaccion
   },
   drawstart(event){
-    // console.log("DRAWSTART")
-    // console.log(event)
     let puntoClick = event.feature.values_.geometry.flatCoordinates
     //Si el modo es punto de solicitud
     if(this.modoInteraccion == "punto-solicitud"){
@@ -211,13 +183,21 @@ export const store = reactive({
     }           
   },
   drawend(event){
-      // console.log("DRAWEND")
-      // console.log(event)
       //Si el modo es recorrido auto
       if(this.modoInteraccion == "recorrido-auto"){
           let recorrido = event.feature.values_.geometry.flatCoordinates
           this.marcarRecorridoAuto(recorrido)
       } 
+      //Si el modo es poligono para busqueda de autos
+      if(this.modoInteraccion == "poligono-autos"){
+        let poligono = event.feature.values_.geometry.flatCoordinates
+        this.buscarAutosPoligono(poligono)
+      }
+      //Si el modo es punto de destino
+      if(this.modoInteraccion == "punto-destino"){
+        let puntoDestino = event.feature.values_.geometry.flatCoordinates
+        this.confirmarPuntoDestino(puntoDestino)
+      }
   },
   agregarMapaCalorAutos(){
     // Eliminar la capa anterior si existe
@@ -283,31 +263,49 @@ export const store = reactive({
         console.log(error)
         console.log("Error: " + error.response.data);
       }.bind(this));
-
-
-    // Eliminar la capa anterior si existe
-
-    // if (this.zonaSinCobertura) {
-    //   this.mapReference.removeLayer(this.zonaSinCobertura);
-    // }
-    // const zonaSinCobertura = new Heatmap({
-    //   zIndex: 1020,
-    //   source: new VectorSource({
-    //     format: new GeoJSON(),
-    //     url: 'http://localhost:8080/geoserver/wfs?service=WFS&version=1.1.0' +
-    //          '&request=GetFeature&typename=tsige:auto&outputFormat=application/json' +
-    //          '&PropertyName=ubicacion'
-    //   }),
-    //   blur: 46,
-    //   radius: 35,
-    // })
-
-    // this.mapReference.addLayer(zonaSinCobertura)
-    // this.zonaSinCobertura = zonaSinCobertura
   },
   quitarZonaSinCobertura(){
     if (this.zonaSinCobertura) {
       this.mapReference.removeLayer(this.zonaSinCobertura);
+    }
+  },
+  iniciarBusquedaPoligono(){
+    this.modoInteraccion = "poligono-autos"
+    this.agregarInteraccion("Polygon")
+  },
+  buscarAutosPoligono(poligono){
+    console.log(poligono)
+    let poligonoFormateado = []
+    for (let i = 0; i < poligono.length; i += 2) {
+      poligonoFormateado.push({
+        x: poligono[i],
+        y: poligono[i + 1]
+      })
+    }
+    console.log(poligonoFormateado)
+    this.modoInteraccion = "punto-solicitud"
+    this.agregarInteraccion("Point")
+
+    let wkt = "POLYGON(("
+    poligonoFormateado.forEach(punto => {
+      wkt = wkt.concat(punto.x, " ", punto.y, ",") 
+    });
+    wkt = wkt.substring(0, wkt.length - 1);
+    wkt = wkt.concat("))")
+
+    this.fetchAutosMapa(`WITHIN(ubicacion, ${wkt})`)
+    
+  },
+  marcarPuntoDestino(){
+    this.modoInteraccion = "punto-destino"
+  },
+  confirmarPuntoDestino(destino){
+    console.log(destino)
+    this.puntoDestino = destino
+    if(this.currentZoom < 15.5){
+      this.viewReference.animate({center: destino}, {zoom: 15.5})
+    }else{
+        this.viewReference.animate({center: destino})
     }
   }
 })
