@@ -1,4 +1,5 @@
 <script>
+import { reset } from 'ol/transform.js';
 import { store } from '../../store.js'
 import axios from 'axios';
 export default{
@@ -30,6 +31,9 @@ export default{
                 .catch(function (error) {
                     console.log("Error: " + error);
                 }.bind(this));
+        },
+        resetLocalStorage(){
+            localStorage.clear();
         }
     },
 }
@@ -40,6 +44,7 @@ export default{
         <p>Esta es la seccion de datos de desarrollo. No va a estar en el resultado final, es solo para
         inspeccionar variables</p>
         <br>
+        <button type="button" @click="resetLocalStorage" class="boton">Reset Local Storage</button>
         <p><span class="nombre">geolocation:</span> {{ store.currentGeolocation}}</p>
         <p><span class="nombre">pto solicitud:</span> {{ store.puntoSolicitud}}</p>
         <p><span class="nombre">pto destino:</span> {{ store.puntoDestino}}</p>

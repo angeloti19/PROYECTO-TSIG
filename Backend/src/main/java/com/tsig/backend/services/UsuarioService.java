@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.tsig.backend.entities.Usuario;
+import com.tsig.backend.enums.ERole;
 import com.tsig.backend.exceptions.UsuarioException;
 import com.tsig.backend.repositories.UsuarioRepository;
 import com.tsig.backend.converters.UsuarioConverter;

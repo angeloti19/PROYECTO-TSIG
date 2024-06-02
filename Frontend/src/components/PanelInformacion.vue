@@ -92,7 +92,7 @@ export default{
             if(this.store.tipoUsuario == "anonimo"){
                 return "#26A099"
             }else{
-                return "#FF3A69"
+                return "#36454F"
             }
         }
     }
@@ -107,7 +107,8 @@ export default{
         <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino' || store.modoInteraccion == undefined">
             <div class="seccion-contenido">
                 <div class="title-bar">
-                    <span>{{getSeccionPorId(store.seccionActual).titulo}}</span>
+                    <span v-if="store.IsUserLogged">[{{ store.role }}] </span>
+                    <span>{{ getSeccionPorId(store.seccionActual).titulo }}</span>
                 </div>
                 <div class="cuerpo">
                     <AutosSeccion class="seccion" v-if="store.seccionActual == 'autos'"/>
@@ -117,9 +118,7 @@ export default{
                     <IniciarSesionSeccion class="seccion" v-if="store.seccionActual == 'iniciar-sesion'"/>
                     <DesarrolloSeccion class="seccion" v-if="store.seccionActual == 'desarrollo'"/>
                     <BienvenidaSeccion v-if="store.seccionActual == 'bienvenida'"/>
-                </div>
-                
-                
+                </div>          
             </div>
             <div class="side-bar" >
                 <v-layout>
@@ -132,7 +131,6 @@ export default{
                                     <v-tooltip open-delay="400" activator="parent" location="start">{{ seccion.tooltip }}</v-tooltip>
                                 </v-list-item>
                             </template>
-                            
                         </v-list>
                     </v-navigation-drawer>
                 </v-layout>
@@ -200,6 +198,10 @@ export default{
 
 .seccion-contenido{
     height:100%;
+}
+
+span {
+  display: inline; /* Display spans inline */
 }
 
 </style>

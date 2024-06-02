@@ -44,6 +44,8 @@ export const store = reactive({
   tipoInteraccion: "",
   //Sesion
   tipoUsuario: undefined,
+  role: '', // Se obtiene desde el jwt
+  IsUserLogged: false,
   //Panel
   seccionActual: 'bienvenida',
   //Referencias a funciones callback

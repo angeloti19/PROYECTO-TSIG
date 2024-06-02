@@ -13,12 +13,12 @@ public class UsuarioConverter {
     public UsuarioConverter(){}
 
     public Usuario toModel(DtUsuario userDto){
-        Usuario usuario = new Usuario();
+        Usuario usuario = new Usuario(null, null, null, null, null);
 
         usuario.setId(userDto.getId());
-        usuario.setNombre(userDto.getNombre());
+        usuario.setUsername(userDto.getNombre());
         usuario.setCorreo(userDto.getCorreo());
-        usuario.setContrasenia(userDto.getContrasenia());
+        usuario.setPassword(userDto.getContrasenia());
         return usuario;
     }
 
@@ -26,9 +26,9 @@ public class UsuarioConverter {
         DtUsuario usuarioDto = new DtUsuario();
 
         usuarioDto.setId(usuario.getId());
-        usuarioDto.setNombre(usuario.getNombre());
+        usuarioDto.setNombre(usuario.getUsername());
         usuarioDto.setCorreo(usuario.getCorreo());
-        usuarioDto.setContrasenia(usuario.getContrasenia());
+        usuarioDto.setContrasenia(usuario.getPassword());
 
         return usuarioDto;
 

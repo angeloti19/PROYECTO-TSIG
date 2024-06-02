@@ -17,6 +17,8 @@ export default{
             localStorage.setItem("tipoUsuario", "anonimo")
             this.store.tipoUsuario = "anonimo"
             this.store.seccionActual = "bienvenida"
+            this.store.role = ''
+            this.store.IsUserLogged = false
         }
     },
 }

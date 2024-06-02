@@ -24,7 +24,7 @@ export default {
     methods: {
         async fetchAutomotoras() {
             this.automotoras = []
-            const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora")
+            const response = await axios.get('/api/automotora')
                 .then(function (response) {
                     response.data.forEach(automotora => {
                         this.automotoras.push({
