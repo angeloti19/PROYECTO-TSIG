@@ -9,7 +9,7 @@ public class DtAuto {
 
     private String matricula;
 
-    private double dist_max;
+    private Float dist_max;
 
     private Boolean electrico;
 
@@ -20,7 +20,7 @@ public class DtAuto {
     public DtAuto() {
     }
 
-    public DtAuto(String matricula, double dist_max, Boolean electrico, Long idAutomotora,
+    public DtAuto(String matricula, Float dist_max, Boolean electrico, Long idAutomotora,
             List<DtCoordenada> recorrido) {
         this.matricula = matricula;
         this.dist_max = dist_max;

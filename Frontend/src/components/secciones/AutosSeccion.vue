@@ -68,7 +68,7 @@ export default{
             }
             //Verificacion frontend completa
             this.mensajeError = ""
-            let url = import.meta.env.VITE_BACKEND_API + "api/autoSolicitud?ptoSolicitud=POINT(" + this.store.puntoSolicitud[0] + " " + this.store.puntoSolicitud[1] + ")&ptoDestino=POINT(" + this.store.puntoDestino[0] + " " + this.store.puntoDestino[1] + ")" 
+            let url = import.meta.env.VITE_BACKEND_API + "api/autoSolicitud/POINT(" + this.store.puntoSolicitud[0] + " " + this.store.puntoSolicitud[1] + ")/POINT(" + this.store.puntoDestino[0] + " " + this.store.puntoDestino[1] + ")?" 
             if(filtraPorAutomotora){
                 url = url.concat("&idAutomotora=" + this.automotoraId)
             }

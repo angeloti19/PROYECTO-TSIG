@@ -96,7 +96,7 @@ public class SucursalService {
             throw new SucursalException("La automotora ingresada no existe");
         }
 
-        Point ubicacionSucursal = metodosGeo.crearUbicacionSucursal(dtSucursal);
+        Point ubicacionSucursal = metodosGeo.crearPunto(dtSucursal.getCoordenadas());
         
         Automotora automotoraEnt = automotora.get(); //Obtenemos la automotora como entidad con la funcion .get()
 
@@ -178,7 +178,7 @@ public class SucursalService {
             if (sucursal.getId().equals(dtSucursal.getId())) {
                 sucursalEncontrada = true;
 
-                Point ubicacionSucursal = metodosGeo.crearUbicacionSucursal(dtSucursal);
+                Point ubicacionSucursal = metodosGeo.crearPunto(dtSucursal.getCoordenadas());
                 if (!puedeActualizarSucursal(dtSucursal.getIdAutomotora(), dtSucursal.getId(), ubicacionSucursal)) {
                     throw new SucursalException("No se puede editar la sucursal porque dejaría a un auto sin cobertura.");
                 }

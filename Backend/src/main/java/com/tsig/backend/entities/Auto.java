@@ -19,7 +19,7 @@ public class Auto {
     private String matricula;
 
     @Column(name = "dist_max")
-    private double dist_max;
+    private Float dist_max;
 
     @Column(name="recorrido", columnDefinition = "Geometry(LineString,32721)")
     private LineString recorrido;
@@ -38,7 +38,7 @@ public class Auto {
     public Auto() {
     }
 
-    public Auto(String matricula, double dist_max, LineString recorrido, Boolean electrico, Point ubicacion,
+    public Auto(String matricula, Float dist_max, LineString recorrido, Boolean electrico, Point ubicacion,
             Automotora automotora) {
         this.matricula = matricula;
         this.dist_max = dist_max;
