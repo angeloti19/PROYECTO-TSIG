@@ -1,10 +1,11 @@
 <script>
 import axios from 'axios'
 import { store } from '@/store'
+import AlertModal from '@/components/modales/AlertModal.vue';
 export default{
     name: 'autosSeccion',
     components: {
-
+        AlertModal
     },
     data(){
         return{
@@ -17,7 +18,9 @@ export default{
             mostrandoFiltros: false,
             mensajeError: "",
             filtrarDistMax: false,
-            buscandoAuto: false
+            buscandoAuto: false,
+            autoSolicitado: undefined
+            
 
         }
     },
@@ -60,10 +63,14 @@ export default{
             }
             if(this.store.puntoSolicitud == undefined){
                 this.mensajeError = "Primero seleccione un punto de solicitud"
+                this.$refs.alertModal.setContenido("Error", this.mensajeError)
+                this.$refs.alertModal.abrir()
                 return
             }
             if(this.store.puntoDestino == undefined){
                 this.mensajeError = "Primero seleccione un punto de destino"
+                this.$refs.alertModal.setContenido("Error", this.mensajeError)
+                this.$refs.alertModal.abrir()
                 return
             }
             //Verificacion frontend completa
@@ -87,30 +94,60 @@ export default{
                 .then(function (response) {
                     console.log(response)
                     console.log(response.data)
+                    console.log(response.data.body.electrico)
+                    this.autoSolicitado = {
+                        "matricula": response.data.body.matricula,
+                        "dist_max": response.data.body.dist_max,
+                        "electrico": response.data.body.electrico,
+                        "idAutomotora": response.data.body.idAutomotora,
+                        "recorrido": response.data.body.recorrido
+                    }
+                    this.store.centrarMapaEnCoordenada([this.autoSolicitado.recorrido[0].x,this.autoSolicitado.recorrido[0].y])
                     this.buscandoAuto = false
                 }.bind(this))
                 .catch(function (error) {
                     console.log("Error: " + error.response.data);
+                    this.$refs.alertModal.setContenido("Error", error.response.data)
+                    this.$refs.alertModal.abrir()
+                    this.autoSolicitado = undefined
                     this.buscandoAuto = false
                 }.bind(this));
 
             
+        },
+        confirmarSolicitud(){
+            this.$refs.alertModal.setContenido("Solicitud confirmada", "El auto " + this.autoSolicitado.matricula + " se le será entregado al punto de solicitud")
+            this.$refs.alertModal.abrir()
         }
     },
 }
 </script>
 
 <template>
+    <AlertModal ref="alertModal"/>
     <div style="padding: 15px 15px;">
         <div style="display:flex; align-items: center; margin-bottom: 15px;">
             <button @click="solicitarAuto" class="boton blanco con-borde" style="width: 100%;">Solicitar auto</button> <v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon>
         </div>
-        <!-- <p>Se solicitará el auto más cercano al punto de solicitud que pueda dejarse en el punto de destino, y que encaje con los filtros que proporcione.</p> -->
-        <p style="font-size: 13px; margin-top:10px">{{ mensajeError }}</p>
-        <!-- <p v-if="false">No se encontró ningún auto apropiado para su solicitud, pruebe usar distintos filtros o cambiar el punto de solicitud o destino.</p> -->
-        <!-- {{ automotoraId }}
-        {{ tipoAuto }}
-        {{ store.puntoDestino }} -->
+        <v-fade-transition>
+        <div style="background-color: white; color: black; padding: 20px; border-radius: 20px;" v-if="autoSolicitado != undefined">
+            <div style="display:flex;justify-content: space-around; gap: 10px;">
+                <div>
+                    <p style="font-weight: 600;">Matricula</p>
+                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ autoSolicitado.matricula }}</p>
+                </div>
+                <div>
+                    <p style="font-weight: 600; ">Automotora</p>
+                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ automotoras.find(autm => {return autm.id === autoSolicitado.idAutomotora}).nombre }}</p>
+                </div>
+                <div>
+                    <p style="font-weight: 600;">Tipo de auto</p>
+                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ autoSolicitado.electrico ? 'Eléctrico' : 'Combustión' }}</p>
+                </div>
+            </div>
+            <button class="boton secundario con-borde" style="width: 100%;" @click="confirmarSolicitud">Confirmar solicitud</button>
+        </div>
+        </v-fade-transition>
     </div>
     <div class="filtroVentana" id="filtroVentana">
         <p style="font-weight: 600; margin-bottom: 8px">Filtros</p>

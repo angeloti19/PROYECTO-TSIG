@@ -56,6 +56,21 @@ html, body {
   color: rgba(255, 255, 255, 0.285);
 }
 
+.boton.secundario{
+  background-color: #26A099;
+  color:white
+}
+.boton.secundario:hover:enabled{
+  background-color: #22948e;
+}
+.boton.secundario:active:enabled{
+  background-color: #1d8782;
+}
+.boton.secundario:disabled{
+  background-color: #1c7974;
+  color: rgba(255, 255, 255, 0.285);
+}
+
 .boton.blanco{
   background-color: #ffffff;
   color:rgba(0, 0, 0, 0.82)
