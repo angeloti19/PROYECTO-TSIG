@@ -41,15 +41,21 @@ export default{
                 const { token } = response.data;
                 // Save token to local storage
                 localStorage.setItem('token', token);
-                console.log('User logged -> Token: ', token);
+                console.log('jwt: ', token);
                 
                 // Decode token
                 const decodedToken = VueJwtDecode.decode(token);
                 console.log('Decoded Token:', decodedToken);
+                
+                // Log issuedAt and expiration dates
+                const issuedAt = new Date(decodedToken.iat * 1000).toLocaleString('en-GB', { timeZone: 'America/Montevideo', timeZoneName: 'short' }); // Convert from seconds to milliseconds
+                const expiration = new Date(decodedToken.exp * 1000).toLocaleString('en-GB', { timeZone: 'America/Montevideo', timeZoneName: 'short' }); // Convert from seconds to milliseconds
+                console.log('Token issued at -> ', issuedAt);
+                console.log('Token expires at -> ', expiration);
 
                 // Get user role
                 store.role = decodedToken.role[0].authority;
-                console.log('Role:', store.role);
+                console.log('Role -> ', store.role);
                 
                 store.IsUserLogged = true;
                 
@@ -58,13 +64,17 @@ export default{
                     localStorage.setItem("tipoUsuario", "admin");
                     this.store.tipoUsuario = "admin";
                     this.store.seccionActual = "automotoras";
+                    this.isError = false;
                     console.log('El usuario inició sesión correctamente!');
                 } else {
                     console.error('Unknown role:', store.role);
                 }
             } catch (error) {
-                console.error('Login failed:', error);
-            }
+              if (error.response && error.response.data) {
+                this.message = error.response.data.message;
+             }
+             this.isError = true;
+          }
         },
         async registrarse() {
             try {
@@ -148,6 +158,8 @@ export default{
     padding: 10px 15px;
     cursor: pointer;
     margin-bottom: 10px;
+    background-color: #36454F;
+    border-color: white;
   }
 
   .contenedor-botones{

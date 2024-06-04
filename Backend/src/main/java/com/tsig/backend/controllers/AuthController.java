@@ -23,6 +23,13 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     @PostMapping("login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        if (!usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
+            AuthResponse errorResponse = AuthResponse.builder()
+                .message("Usuario incorrecto!")
+                .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }

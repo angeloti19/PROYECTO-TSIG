@@ -36,7 +36,7 @@ public class AuthService {
         extraClaims.put("role", user.getAuthorities());
         
         String token = jwtService.getTokenv2(extraClaims, user);
-
+        
         return AuthResponse.builder()
             .message("User successfully logged in")
             .token(token)
@@ -47,7 +47,6 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-        // Continue with the registration if the username is unique
         ERole[] rolValues = ERole.values(); // 0 = ROLE_USER | 1 = ROLE_ADMIN
         Usuario user = Usuario.builder()
             .username(request.getUsername())

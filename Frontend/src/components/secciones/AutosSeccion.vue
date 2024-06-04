@@ -127,25 +127,25 @@ export default{
     <AlertModal ref="alertModal"/>
     <div style="padding: 15px 15px;">
         <div style="display:flex; align-items: center; margin-bottom: 15px;">
-            <button @click="solicitarAuto" class="boton blanco con-borde" style="width: 100%;">Solicitar auto</button> <v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon>
+            <button @click="solicitarAuto" class="boton blanco con-borde">Solicitar auto</button> <v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon>
         </div>
         <v-fade-transition>
-        <div style="background-color: white; color: black; padding: 20px; border-radius: 20px;" v-if="autoSolicitado != undefined">
+        <div style="background-color: #aedddd; color: black; padding: 20px; border: 2px solid white; border-radius: 20px;" v-if="autoSolicitado != undefined">
             <div style="display:flex;justify-content: space-around; gap: 10px;">
-                <div>
-                    <p style="font-weight: 600;">Matricula</p>
-                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ autoSolicitado.matricula }}</p>
+                <div style="text-align: center">
+                    <h3 style="font-weight: 600;">Matricula</h3>
+                    <p style=" color:black; margin-top: 10%;">{{ autoSolicitado.matricula }}</p>
                 </div>
-                <div>
-                    <p style="font-weight: 600; ">Automotora</p>
-                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ automotoras.find(autm => {return autm.id === autoSolicitado.idAutomotora}).nombre }}</p>
+                <div style="text-align: center">
+                    <h3 style="font-weight: 600; ">Automotora</h3>
+                    <p style=" color:black; margin-top: 10%;">{{ automotoras.find(autm => {return autm.id === autoSolicitado.idAutomotora}).nombre }}</p>
                 </div>
-                <div>
-                    <p style="font-weight: 600;">Tipo de auto</p>
-                    <p style=" color:rgba(0, 0, 0, 0.694)">{{ autoSolicitado.electrico ? 'Eléctrico' : 'Combustión' }}</p>
+                <div style="text-align: center">
+                    <h3 style="font-weight: 600;">Tipo de auto</h3>
+                    <p style=" color:black; margin-top: 10%;">{{ autoSolicitado.electrico ? 'Eléctrico' : 'Combustión' }}</p>
                 </div>
             </div>
-            <button class="boton secundario con-borde" style="width: 100%;" @click="confirmarSolicitud">Confirmar solicitud</button>
+            <button class="boton secundario con-borde" style="width: 100%; border-width: 1px; border-color: white; margin-top: 5%;" @click="confirmarSolicitud">Confirmar solicitud</button>
         </div>
         </v-fade-transition>
     </div>
@@ -212,4 +212,22 @@ export default{
     color: rgba(0, 0, 0, 0.378);
 }
 
+.boton {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    background-color: #36454F;
+    border-color: white;
+    color: white;
+    border-width: 2px !important;
+  }
+
+.boton:hover {
+    background-color: #45a049 !important;
+    color: white !important;
+    border-width: 2px !important;
+    border-color: white !important;
+  }
 </style>
