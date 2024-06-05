@@ -227,8 +227,9 @@ public class SucursalService {
         // Verificar si no quedan sucursales y eliminar autos solo si es necesario
         if (automotora.getSucursales().isEmpty()) {
                 automotora.getAutos().clear();
+                automotoraRepository.delete(automotora);
         }else{
-            automotoraRepository.save(automotora); // Guardamos la automotora actualizada después de eliminar autos si es necesario
+            automotoraRepository.save(automotora); // Guardamos la automotora actualizada 
         }
         return ResponseEntity.ok("Sucursal eliminada correctamente.");
     }

@@ -1,7 +1,5 @@
 package com.tsig.backend.controllers;
 
-import com.tsig.backend.enums.ERole;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

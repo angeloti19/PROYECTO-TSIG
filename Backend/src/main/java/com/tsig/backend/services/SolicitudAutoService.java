@@ -14,13 +14,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.tsig.backend.converters.AutoConverter;
+import com.tsig.backend.converters.SucursalConverter;
+import com.tsig.backend.datatypes.DtAuto;
+import com.tsig.backend.datatypes.DtListAutoSucursal;
 import com.tsig.backend.datatypes.DtSolicitudAuto;
+import com.tsig.backend.datatypes.DtSucursal;
 import com.tsig.backend.entities.Auto;
 import com.tsig.backend.entities.Automotora;
 import com.tsig.backend.entities.Sucursal;
 import com.tsig.backend.exceptions.AutoException;
 import com.tsig.backend.repositories.AutoRepository;
 import com.tsig.backend.repositories.AutomotoraRepository;
+import com.tsig.backend.repositories.SucursalRepository;
 import com.tsig.backend.utils.MetodosGeo;
 
 @Service
@@ -33,7 +38,13 @@ public class SolicitudAutoService {
     AutoConverter autoConverter;
 
     @Autowired
+    SucursalConverter sucursalConverter;
+
+    @Autowired
     AutomotoraRepository automotoraRepository;
+
+    @Autowired
+    SucursalRepository sucursalRepository;
 
     @Value("${distancia.maxima.destino.sucursal}")
     private Float distanciaMaxDestino;
@@ -115,4 +126,42 @@ public class SolicitudAutoService {
         return ResponseEntity.ok(autoConverter.toDto(autoMasCercano));
     }
 
+    public ResponseEntity<?> AutosYSucursalesCercanos(String ptoSolicitud) throws Exception{
+        //Instancio WKTReader para leer el ptoSolicitud y convertirlo a geometria
+        WKTReader wktReader = new WKTReader();
+        Geometry puntoSolicitud = wktReader.read(ptoSolicitud);
+
+        //Obtengo todos los autos y sucursales
+        List<Auto> autos = autoRepo.findAll();
+        List<Sucursal> sucursales = sucursalRepository.findAll();
+
+        //Actualizo lista de autos con los unicos que contienen al ptoSolicitud en su zona de cobertura
+        autos = autos.stream()
+                     .filter(auto -> puntosEnBuffer(auto, puntoSolicitud))
+                     .collect(Collectors.toList());
+        
+        //Recorro lista de autos y actualizamos lista de sucursales con las unicas que estan dentro de las zonas de cobertura.
+        for(Auto auto: autos){
+            Geometry buffer = metodosGeo.calcularBuffer(auto.getRecorrido(), auto.getDist_max());
+            sucursales = sucursales.stream()
+                                   .filter(sucursal -> metodosGeo.estaDentroDeBuffer(sucursal.getUbicacion(), buffer))
+                                   .collect(Collectors.toList());
+        }
+
+        if(autos.isEmpty()){
+            throw new Exception("No hay autos cercanos a tu ubicacion");
+        }
+        
+        //Convierto autos a DtAuto
+        List<DtAuto> dtAutos = autos.stream()
+                                    .map(auto -> autoConverter.toDto(auto))
+                                    .collect(Collectors.toList());
+
+        List<DtSucursal> dtSucursales = sucursales.stream()
+                                                  .map(sucursal -> sucursalConverter.toDt(sucursal))
+                                                  .collect(Collectors.toList());
+        
+        DtListAutoSucursal dtListAutoSucursal = new DtListAutoSucursal(dtAutos, dtSucursales);
+        return ResponseEntity.ok(dtListAutoSucursal);
+    }
 }
