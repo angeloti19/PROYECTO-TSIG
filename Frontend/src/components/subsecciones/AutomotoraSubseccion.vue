@@ -50,7 +50,7 @@ export default{
         async fetchSucursales(){
             this.sucursales = []
             this.cargandoSucursales = true
-            const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/sucursal")
+            const response = await axios.get("/api/automotora/" + this.automotoraId + "/sucursal")
                 .then(function (response) {
                     response.data.forEach(sucursal => {
                         this.sucursales.push({
@@ -69,7 +69,7 @@ export default{
         async fetchAutos(){
             this.cargandoAutos = true
             this.autos = []
-            const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto")
+            const response = await axios.get("/api/automotora/" + this.automotoraId + "/auto")
                 .then(function (response) {
                     response.data.forEach(auto => {
                         this.autos.push({
@@ -138,7 +138,7 @@ export default{
             this.$refs.editarSucursalModal.abrir()
         },
         async eliminarAuto(matricula){
-            const response = await axios.delete(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/auto/" + this.autoAEliminarMatricula)
+            const response = await axios.delete("/api/automotora/" + this.automotoraId + "/auto/" + this.autoAEliminarMatricula)
             .then(function (response) {
                 if(response.data.statusCode != "OK"){
                     alert("error")
@@ -155,7 +155,7 @@ export default{
             if(this.sucursales.length == 1){
                 ultimaSucursal = true
             }
-            const response = await axios.delete(import.meta.env.VITE_BACKEND_API + "api/automotora/" + this.automotoraId + "/sucursal/" + this.sucursalAEliminarId)
+            const response = await axios.delete("/api/automotora/" + this.automotoraId + "/sucursal/" + this.sucursalAEliminarId)
             .then(function (response) {
                 if(response.data.statusCode != "OK"){
                     alert("error")

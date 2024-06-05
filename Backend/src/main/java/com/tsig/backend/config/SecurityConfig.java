@@ -27,18 +27,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         return http
-            .csrf(csrf -> 
-                csrf
-                .disable()) // no se utiliza este tipo de token
-            .authorizeHttpRequests(authRequest ->
-              authRequest
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // swagger always allowed
-                .anyRequest().authenticated()
-                )
-            .sessionManagement(sessionManager->
-                sessionManager 
-                  .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // no usamos sesiones
+            .csrf(csrf->csrf.disable())                                 // No se utiliza este tipo de token
+            .authorizeHttpRequests(
+                authRequest->authRequest
+                .requestMatchers("/auth/**").permitAll()    // End points -> Registro y Login
+                .requestMatchers(
+                    "/api/automotora", 
+                                "/api/autoSolicitud/**", 
+                                "/api/autoSucursalCercanos/**"
+                                ).permitAll()                           // End points -> Usuario anonimo
+                .requestMatchers(
+                    "/swagger-ui/**", 
+                                "/v3/api-docs/**"
+                                ).permitAll()                           // End Points -> Swagger
+                .anyRequest().authenticated())                          // End points -> Administrador
+            .sessionManagement(
+                sessionManager->
+                sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // No se utilizan sesiones
             .authenticationProvider(authProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();         

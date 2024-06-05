@@ -103,7 +103,7 @@ export default {
                     v-model="store.modoInteraccion"
                     style="margin-top: 3px; margin-left: 10px; border-color: rgba(0, 0, 0, 0.387); border-width: 2px; border-style: solid;">
                     <v-btn disabled icon="mdi-map-marker" style="border-right-style: solid;border-right-width: 2px;border-right-color: #858585;"></v-btn>
-                    <v-btn class="btn-sol" value="punto-solicitud"
+                    <v-btn autofocus class="btn-sol" value="punto-solicitud"
                         style="text-transform: none; padding: 5px; border-right: 2px solid rgba(0, 0, 0, 0.387);">Solicitud</v-btn>
                     <v-btn class="btn-des" value="punto-destino"
                         style="text-transform: none; padding: 5px; padding-right: 10px;">Destino</v-btn>

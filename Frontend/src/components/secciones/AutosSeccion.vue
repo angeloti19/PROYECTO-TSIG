@@ -41,7 +41,7 @@ export default{
         async fetchAutomotoras() {
             this.cargandoAutomotoras = true
             this.automotoras = []
-            const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/automotora")
+            const response = await axios.get("/api/automotora")
                 .then(function (response) {
                     response.data.forEach(automotora => {
                         this.automotoras.push({
@@ -75,7 +75,7 @@ export default{
             }
             //Verificacion frontend completa
             this.mensajeError = ""
-            let url = import.meta.env.VITE_BACKEND_API + "api/autoSolicitud/POINT(" + this.store.puntoSolicitud[0] + " " + this.store.puntoSolicitud[1] + ")/POINT(" + this.store.puntoDestino[0] + " " + this.store.puntoDestino[1] + ")?" 
+            let url = "/api/autoSolicitud/POINT(" + this.store.puntoSolicitud[0] + " " + this.store.puntoSolicitud[1] + ")/POINT(" + this.store.puntoDestino[0] + " " + this.store.puntoDestino[1] + ")?" 
             if(filtraPorAutomotora){
                 url = url.concat("&idAutomotora=" + this.automotoraId)
             }

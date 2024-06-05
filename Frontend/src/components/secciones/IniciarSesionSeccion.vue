@@ -41,7 +41,7 @@ export default{
                 const { token } = response.data;
                 // Save token to local storage
                 localStorage.setItem('token', token);
-                console.log('jwt: ', token);
+                console.log('JSON Web Token -> ', token);
                 
                 // Decode token
                 const decodedToken = VueJwtDecode.decode(token);

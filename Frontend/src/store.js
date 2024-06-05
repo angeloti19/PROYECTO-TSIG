@@ -319,7 +319,7 @@ export const store = reactive({
       return
     }
     const punto = `POINT(${this.puntoSolicitud[0]} ${this.puntoSolicitud[1]})`
-    const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/autoSucursalCercanos/" + punto)
+    const response = await axios.get("/api/autoSucursalCercanos/" + punto)
       .then(function (response) {
         let filtroAutos = 'IN ('
         response.data.body.autos.forEach(auto => {

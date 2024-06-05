@@ -19,6 +19,10 @@ export default{
             this.store.seccionActual = "bienvenida"
             this.store.role = ''
             this.store.IsUserLogged = false
+            localStorage.setItem("token", null);
+            console.log("Sesion cerrada!");
+            console.log("Tipo usuario -> ", store.tipoUsuario);
+            console.log("Reset Token -> ", localStorage.getItem("token"));
         }
     },
 }
