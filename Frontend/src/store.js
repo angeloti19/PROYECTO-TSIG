@@ -21,7 +21,7 @@ export const store = reactive({
   currentZoom: 14,
   currentRotation: 0,
   currentResolution: 0,
-  puntoSolicitud: undefined,
+  _puntoSolicitud: undefined,
   puntoDestino: undefined,
   currentGeolocation: [],
   //Referencias 
@@ -52,6 +52,14 @@ export const store = reactive({
   funcionUbicacionSucursal: undefined,
   funcionRecorridoAuto: undefined,
   //Metodos
+  set puntoSolicitud(punto){
+    this._puntoSolicitud = punto
+    this.autosSucursalCercanos()
+
+  },
+  get puntoSolicitud(){
+    return this._puntoSolicitud
+  },
   usarUbicacion() {
     if (this.currentGeolocation.length == 0) {
       alert("Permita acceso a su ubicación para utilizar geolocalización.")
@@ -235,7 +243,6 @@ export const store = reactive({
     const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/consultas/zonasSinCobertura")
       .then(function (response) {
         const zona = response.data
-        console.log(zona)
         const format = new WKT();
         const feature = format.readFeature(zona, {
           dataProjection: 'EPSG:32721'
@@ -276,7 +283,6 @@ export const store = reactive({
     this.agregarInteraccion("Polygon")
   },
   buscarAutosPoligono(poligono){
-    console.log(poligono)
     let poligonoFormateado = []
     for (let i = 0; i < poligono.length; i += 2) {
       poligonoFormateado.push({
@@ -284,7 +290,6 @@ export const store = reactive({
         y: poligono[i + 1]
       })
     }
-    console.log(poligonoFormateado)
     this.modoInteraccion = "punto-solicitud"
     this.agregarInteraccion("Point")
 
@@ -302,12 +307,45 @@ export const store = reactive({
     this.modoInteraccion = "punto-destino"
   },
   confirmarPuntoDestino(destino){
-    console.log(destino)
     this.puntoDestino = destino
     if(this.currentZoom < 15.5){
       this.viewReference.animate({center: destino}, {zoom: 15.5})
     }else{
         this.viewReference.animate({center: destino})
     }
+  },
+  async autosSucursalCercanos(){
+    if(!this.puntoSolicitud){
+      return
+    }
+    const punto = `POINT(${this.puntoSolicitud[0]} ${this.puntoSolicitud[1]})`
+    const response = await axios.get(import.meta.env.VITE_BACKEND_API + "api/autoSucursalCercanos/" + punto)
+      .then(function (response) {
+        let filtroAutos = 'IN ('
+        response.data.body.autos.forEach(auto => {
+          filtroAutos = filtroAutos.concat(`'${auto.matricula}',`) 
+        });
+        if(response.data.body.autos.length != 0){
+          filtroAutos = filtroAutos.substring(0, filtroAutos.length - 1);
+        }
+        filtroAutos = filtroAutos.concat(')')
+
+        let filtroSucursales = 'IN ('
+        response.data.body.sucursales.forEach(sucursal => {
+          filtroSucursales = filtroSucursales.concat(`'${sucursal.id}',`) 
+        });
+        if(response.data.body.sucursales.length != 0){
+          filtroSucursales = filtroSucursales.substring(0, filtroSucursales.length - 1);
+        }
+        filtroSucursales = filtroSucursales.concat(')')
+
+        this.fetchAutosMapa(filtroAutos)
+        this.fetchSucursalesMapa(filtroSucursales)
+      }.bind(this))
+      .catch(function (error) {
+        console.log("Error: " + error.response.data);
+        this.fetchAutosMapa("EXCLUDE")
+        this.fetchSucursalesMapa("EXCLUDE")
+      }.bind(this));
   }
 })

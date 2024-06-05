@@ -53,14 +53,8 @@ export default {
             store.fetchSucursalesMapa("") //Hacer un fetch con filtro "" hace que sobreescriba el filtro anterior
             store.fetchAutosMapa("")
         } else {
-            //Aplicar filtro sobre punto de solicitud
-            //Esto se deberia hacer cuando cambia el pto de solicitud tambien
             store.modoInteraccion = "punto-solicitud"
-            // store.fetchSucursalesMapa()
-            // store.fetchAutosMapa("DWITHIN(recorrido,POINT(578673 6140805), dist_max, meters)")
-
-            store.fetchSucursalesMapa("")
-            store.fetchAutosMapa("")
+            store.autosSucursalCercanos()
         }
 
 
@@ -108,10 +102,9 @@ export default {
                 <v-btn-toggle v-if="store.tipoUsuario == 'anonimo'" rounded="xl" density="comfortable"
                     v-model="store.modoInteraccion"
                     style="margin-top: 3px; margin-left: 10px; border-color: rgba(0, 0, 0, 0.387); border-width: 2px; border-style: solid;">
-                    <v-btn disabled icon="mdi-map-marker"></v-btn>
+                    <v-btn disabled icon="mdi-map-marker" style="border-right-style: solid;border-right-width: 2px;border-right-color: #858585;"></v-btn>
                     <v-btn class="btn-sol" value="punto-solicitud"
                         style="text-transform: none; padding: 5px; border-right: 2px solid rgba(0, 0, 0, 0.387);">Solicitud</v-btn>
-                    <v-btn disabled icon="mdi-map-marker"></v-btn>
                     <v-btn class="btn-des" value="punto-destino"
                         style="text-transform: none; padding: 5px; padding-right: 10px;">Destino</v-btn>
                 </v-btn-toggle>
@@ -171,7 +164,7 @@ export default {
 
         <!--Punto de solicitud -->
         <ol-vector-layer :zIndex="1009"
-            v-if="store.puntoSolicitud != undefined && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino')">
+            v-if="store.puntoSolicitud != undefined && store.tipoUsuario == 'anonimo'">
             <ol-source-vector>
                 <ol-feature ref="posicionSolicitud">
                     <ol-geom-point :coordinates="store.puntoSolicitud"></ol-geom-point>
@@ -185,7 +178,7 @@ export default {
 
         <!--Punto de destino -->
         <ol-vector-layer :zIndex="1009"
-            v-if="store.puntoDestino != undefined && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino')">
+            v-if="store.puntoDestino != undefined && store.tipoUsuario == 'anonimo'">
             <ol-source-vector>
                 <ol-feature ref="posicionDestino">
                     <ol-geom-point :coordinates="store.puntoDestino"></ol-geom-point>
@@ -280,7 +273,7 @@ export default {
 
 .btn-des {
     color: #26a09a !important;
-    background-color:#aedddd !important;
+    background-color:#dffafa !important;
 }
 
 .btn-sol {
@@ -289,14 +282,24 @@ export default {
 }
 
 .btn-des:hover,
-.btn-des:focus {
+.btn-des:active {
     background-color: #26A099 !important;
     color: white !important;
 }
 
 .btn-sol:hover,
-.btn-sol:focus {
+.btn-sol:active {
     background-color: #FF3A69 !important;
+    color: white !important;
+}
+
+.btn-sol.v-btn--active{
+    background-color: #FF3A69 !important;
+    color: white !important;
+}
+
+.btn-des.v-btn--active{
+    background-color: #26A099 !important;
     color: white !important;
 }
 </style>

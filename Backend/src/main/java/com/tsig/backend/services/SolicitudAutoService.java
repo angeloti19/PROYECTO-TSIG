@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.util.GeometryCombiner;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -139,18 +140,35 @@ public class SolicitudAutoService {
         autos = autos.stream()
                      .filter(auto -> puntosEnBuffer(auto, puntoSolicitud))
                      .collect(Collectors.toList());
-        
-        //Recorro lista de autos y actualizamos lista de sucursales con las unicas que estan dentro de las zonas de cobertura.
-        for(Auto auto: autos){
-            Geometry buffer = metodosGeo.calcularBuffer(auto.getRecorrido(), auto.getDist_max());
-            sucursales = sucursales.stream()
-                                   .filter(sucursal -> metodosGeo.estaDentroDeBuffer(sucursal.getUbicacion(), buffer))
-                                   .collect(Collectors.toList());
-        }
 
         if(autos.isEmpty()){
-            throw new Exception("No hay autos cercanos a tu ubicacion");
+        throw new Exception("No hay autos cercanos a tu ubicacion");
         }
+
+        //Conseguimos la union de las zonas de cobertura de los autos y actualizamos lista de sucursales con las unicas que estan dentro de esa union.
+        List<Geometry> listaBuffers = new ArrayList<Geometry>();
+
+        for(Auto auto: autos){
+            Geometry zonaCobertura = metodosGeo.calcularBuffer(auto.getRecorrido(), auto.getDist_max());
+
+            if (!zonaCobertura.isValid()) {
+                zonaCobertura = zonaCobertura.buffer(0);
+            }
+
+            listaBuffers.add(zonaCobertura);
+        }
+
+        Geometry unionZonaCoberturas = GeometryCombiner.combine(listaBuffers);
+
+        if (!unionZonaCoberturas.isValid()) {
+            unionZonaCoberturas = unionZonaCoberturas.buffer(0);
+        }
+        Geometry unionZonaCoberturasReparado = unionZonaCoberturas; //Para evitar un error
+        sucursales = sucursales.stream()
+                                   .filter(sucursal -> metodosGeo.estaDentroDeBuffer(sucursal.getUbicacion(), unionZonaCoberturasReparado))
+                                   .collect(Collectors.toList());
+
+        
         
         //Convierto autos a DtAuto
         List<DtAuto> dtAutos = autos.stream()

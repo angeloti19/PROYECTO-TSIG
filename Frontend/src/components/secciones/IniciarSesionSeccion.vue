@@ -167,7 +167,7 @@ export default{
   }
   
   .boton:hover {
-    background-color: #45a049;
+    background-color: #343f46;
   }
 
   .text-success {

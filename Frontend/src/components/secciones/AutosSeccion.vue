@@ -225,7 +225,7 @@ export default{
   }
 
 .boton:hover {
-    background-color: #45a049 !important;
+    background-color: #343f46 !important;
     color: white !important;
     border-width: 2px !important;
     border-color: white !important;
