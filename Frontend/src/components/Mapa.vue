@@ -242,11 +242,7 @@ export default {
 
 .overlay {
     position: absolute;
-<<<<<<< HEAD
     z-index:1;
-=======
-    z-index: 10000;
->>>>>>> 207eb9927c268ab959a79a2517a1e8bdc4e13def
     display: flex;
     width: 100%;
     justify-content: space-between;
