@@ -30,6 +30,7 @@ export default{
         origenAutocomplete.addListener("place_changed", ()=>{
             let [x, y] = proj4("EPSG:4326", "EPSG:32721", [origenAutocomplete.getPlace().geometry.location.lng(), origenAutocomplete.getPlace().geometry.location.lat()]);
             this.store.puntoSolicitud = [x, y];
+            this.store.centrarMapaEnCoordenada([x,y]);
         })
         if (this.store.tipoUsuario === 'anonimo'){
             const destinoAutocomplete = new google.maps.places.Autocomplete(
@@ -44,6 +45,7 @@ export default{
             destinoAutocomplete.addListener("place_changed", ()=>{
                 let [x, y] = proj4("EPSG:4326", "EPSG:32721", [destinoAutocomplete.getPlace().geometry.location.lng(), destinoAutocomplete.getPlace().geometry.location.lat()]);
                 this.store.puntoDestino = [x, y];
+                this.store.centrarMapaEnCoordenada([x,y]);
         })
         }
         
