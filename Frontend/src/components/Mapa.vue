@@ -250,7 +250,7 @@ export default{
 
   .overlay{
     position: absolute;
-    z-index:10000;
+    z-index:1;
     display: flex;
     width: 100%;
     justify-content: space-between;
