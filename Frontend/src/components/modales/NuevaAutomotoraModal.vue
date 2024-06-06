@@ -52,7 +52,7 @@ export default {
                 "coordenadaSucursal": {
                     "x": this.x,
                     "y": this.y
-                }
+                },
             }
             const response = await axios.post(import.meta.env.VITE_BACKEND_API + "api/automotora", data)
                 .then(async function (response) {

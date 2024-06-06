@@ -12,7 +12,4 @@ public class DtUsuario {
     private String correo;
 
     private String contrasenia;
-
-
-
 }

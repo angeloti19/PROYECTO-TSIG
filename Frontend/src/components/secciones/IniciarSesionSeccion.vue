@@ -1,5 +1,7 @@
 <script>
 import { store } from '@/store';
+import axios from 'axios'
+import VueJwtDecode from 'vue-jwt-decode';
 export default{
     name: 'iniciarSesionSeccion',
     components: {
@@ -8,57 +10,171 @@ export default{
     data(){
         return{
             store,
-            correo: "",
-            contrasena: "",
-            isLoading: false
+            username: '',
+            password: '',
+            correo: '',
+            role: 1, // 1 = ROLE_ADMIN
+            message: '',
+            isLoading: false,
+            isSignUp: false,
+            isError: false
         }
     },
     mounted(){
     },
+    computed: {
+      messageClass() {
+      return {
+        'text-success': !this.isError,
+        'text-error': this.isError
+      };
+    }
+  },
     methods:{
-        iniciarSesion(){
-            localStorage.setItem("tipoUsuario", "admin")
-            this.store.tipoUsuario = "admin"
-            this.store.seccionActual = "automotoras"
-        },
-        async onSubmitInicioSesion(){
-            console.log("los datos ingresados son los siguientes:")
-            console.log(this.correoIS + " "+ this.contrasenaIS)
-            // this.isLoading = true
-            // //Hace el pedido
-            // const data = {
-            //     "correo": this.correo,
-            //     "contrasenia": this.contrasena,
-            // }
-            // const response = await axios.post(import.meta.env.VITE_BACKEND_API + "api/login/", data)
-            //     .then(function (response) {
-            //         console.log("Response: " + response);
-            //         this.isLoading = false
+        async iniciarSesion(){
+            try {
+                const response = await axios.post('/auth/login', {
+                    username: this.username,
+                    password: this.password
+                });
 
-            //     }.bind(this))
-            //     .catch(function (error) {
-            //         console.log("Error: " + error);
-            //         this.isLoading = false
-            //     }.bind(this));
-            
+                const { token } = response.data;
+                // Save token to local storage
+                localStorage.setItem('token', token);
+                console.log('JSON Web Token -> ', token);
+                
+                // Decode token
+                const decodedToken = VueJwtDecode.decode(token);
+                console.log('Decoded Token:', decodedToken);
+                
+                // Log issuedAt and expiration dates
+                const issuedAt = new Date(decodedToken.iat * 1000).toLocaleString('en-GB', { timeZone: 'America/Montevideo', timeZoneName: 'short' }); // Convert from seconds to milliseconds
+                const expiration = new Date(decodedToken.exp * 1000).toLocaleString('en-GB', { timeZone: 'America/Montevideo', timeZoneName: 'short' }); // Convert from seconds to milliseconds
+                console.log('Token issued at -> ', issuedAt);
+                console.log('Token expires at -> ', expiration);
+
+                // Get user role
+                store.role = decodedToken.role[0].authority;
+                console.log('Role -> ', store.role);
+                
+                store.IsUserLogged = true;
+                
+                // Redirect based on user role
+                if (store.role === 'ROLE_ADMIN') {
+                    localStorage.setItem("tipoUsuario", "admin");
+                    this.store.tipoUsuario = "admin";
+                    this.store.seccionActual = "automotoras";
+                    this.isError = false;
+                    console.log('El usuario inició sesión correctamente!');
+                } else {
+                    console.error('Unknown role:', store.role);
+                }
+            } catch (error) {
+              if (error.response && error.response.data) {
+                this.message = error.response.data.message;
+             }
+             this.isError = true;
+          }
         },
+        async registrarse() {
+            try {
+                const response = await axios.post('/auth/register', {
+                    username: this.username,
+                    correo: this.correo,
+                    password: this.password,
+                    role: this.role
+                });
+                this.message = response.data.message;
+                this.isSignUp = false;
+                this.isError = false;
+                console.log('El usuario se registró correctamente!');
+                console.log('Rol -> ' + this.role);
+            } catch (error) {
+              if (error.response && error.response.data) {
+                this.message = error.response.data.message;
+              } else {
+                this.message = 'An error occurred. Please try again.';
+              }
+              this.isError = true;
+            }
+        } ,
+        toggleForm() {
+            this.isSignUp = !this.isSignUp;
+            // Clear the form fields when switching
+            this.username = '';
+            this.password = '';
+            this.correo = '';
+            this.message = '';
+        }
     },
 }
 </script>
 
 <template>
     <div style="padding: 15px 15px;">
-        <p>Si usted es un administrador, puede ingresar aquí.</p>
-        <form>
-            <div class="contenedor-formulario">
-                <label for="correo">Correo</label>
-                <input v-model="correo" name="correo" id="correo" type="email">
-                <label for="contrasena">Contraseña</label>
-                <input v-model="contrasena" name="contrasena" id="contrasena" type="password">
-                <button :disabled="isLoading" type="button" @click="onSubmitInicioSesion" class="boton" style="width: 130px; margin-top: 15px;">Confirmar</button>
-            </div>
-        </form>
-        <button @click="iniciarSesion" class="boton">Iniciar sesion</button>
+      <p v-if="!isSignUp">
+        Si usted es un administrador, puede ingresar aquí.
+      </p>
+      <p v-if="isSignUp">
+        Por favor, complete el formulario para registrarse.
+      </p>
+      <p :class="messageClass">{{ message }}</p>
+      
+      <form v-if="!isSignUp" @submit.prevent="iniciarSesion">
+        <div class="contenedor-formulario">
+          <label for="username">Usuario</label>
+          <input type="text" v-model="username" placeholder="Usuario" required>
+          <label for="password">Contraseña</label>
+          <input type="password" v-model="password" placeholder="Contraseña" required>
+        </div>
+        <div class ="contenedor-botones">
+            <button type="submit" class="boton">Iniciar sesión</button>
+            <button type="button" @click="toggleForm" class="boton">Registrarse</button>
+        </div>
+      </form>
+      
+      <form v-if="isSignUp" @submit.prevent="registrarse">
+        <h4>{{store.role}}</h4>
+        <div class="contenedor-formulario">
+          <label for="username">Usuario</label>
+          <input type="text" v-model="username" placeholder="Usuario" required>
+          <label for="password">Contraseña</label>
+          <input type="password" v-model="password" placeholder="Contraseña" required>
+          <label for="Email">Email</label>
+          <input type="email" v-model="correo" placeholder="Email" required>
+        </div>
+        <div class ="contenedor-botones">
+            <button type="submit" class="boton">Registrarse</button>
+            <button type="button" @click="toggleForm" class="boton">Cancelar</button>
+        </div>
+      </form>
     </div>
+  </template>
 
-</template>
+<style scoped>
+  .boton {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    background-color: #36454F;
+    border-color: white;
+  }
+
+  .contenedor-botones{
+    margin-top: 25px;
+  }
+  
+  .boton:hover {
+    background-color: #343f46;
+  }
+
+  .text-success {
+  color:springgreen !important;
+}
+
+.text-error {
+  color: crimson;
+}
+  </style>

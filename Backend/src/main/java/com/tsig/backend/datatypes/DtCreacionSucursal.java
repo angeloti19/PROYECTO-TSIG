@@ -16,6 +16,4 @@ public class DtCreacionSucursal {
         this.coordenadas = coordenadas;
     }
 
-    
-
 }

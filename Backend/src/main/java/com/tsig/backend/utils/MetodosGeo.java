@@ -14,17 +14,16 @@ import org.locationtech.jts.operation.buffer.BufferParameters;
 
 import com.tsig.backend.datatypes.DtAuto;
 import com.tsig.backend.datatypes.DtCoordenada;
-import com.tsig.backend.datatypes.DtSucursal;
 import com.tsig.backend.entities.*;
 
 public class MetodosGeo {
 
     GeometryFactory Factory = new GeometryFactory(new PrecisionModel(), 32721);
 
-    public Point crearUbicacionSucursal(DtSucursal dtSucursal){
-        Coordinate coordenadas = new Coordinate(dtSucursal.getCoordenadas().getX(), dtSucursal.getCoordenadas().getY());
-        Point ubicacionSucursal = Factory.createPoint(coordenadas);
-        return ubicacionSucursal;
+    public Point crearPunto(DtCoordenada dtCoordenada){
+        Coordinate coordenadas = new Coordinate(dtCoordenada.getX(), dtCoordenada.getY());
+        Point punto = Factory.createPoint(coordenadas);
+        return punto;
     }
 
     public LineString crearRecorridoAuto(DtAuto dtAuto){
@@ -42,7 +41,7 @@ public class MetodosGeo {
         return ubicacionAuto;
     }
 
-    public Geometry calcularBuffer(LineString recorrido, Double dist_max ){
+    public Geometry calcularBuffer(LineString recorrido, Float dist_max ){
 
         // Crear un objeto BufferParameters para configurar el estilo de la tapa final del buffer
         BufferParameters bufferParameters = new BufferParameters();
