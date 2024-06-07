@@ -40,6 +40,7 @@ export default {
         },
         geolocationChanged(event) {
             this.store.currentGeolocation = event.target.getPosition();
+            this.store.usarUbicacion()
             //this.$refs.view.setCenter(event.target.getPosition());
             //this.puntoSolicitud = event.target.getPosition();
         }
@@ -53,7 +54,8 @@ export default {
             store.fetchSucursalesMapa("") //Hacer un fetch con filtro "" hace que sobreescriba el filtro anterior
             store.fetchAutosMapa("")
         } else {
-            store.modoInteraccion = "punto-solicitud"
+            store.modoInteraccion = undefined
+            
             store.autosSucursalCercanos()
         }
 
@@ -64,7 +66,7 @@ export default {
             if (this.store.tipoUsuario == "anonimo") {
                 return "#26A099"
             } else {
-                return "#FF3A69"
+                return "#36454F"
             }
         }
     }
@@ -79,6 +81,20 @@ export default {
 
         <!-- Div overlay -->
         <div class="overlay">
+            <div v-if="store.mapaCompleto" class="ayuda-interaccion">
+                <span>ⓘ</span>
+                <div style="" v-if="store.modoInteraccion == 'punto-sucursal'">
+                    <p>Seleccione la ubicación de la sucursal.</p>
+                </div>
+                <div v-if="store.modoInteraccion == 'recorrido-auto'">
+                    <p>Seleccione el recorrido del auto.</p>
+                    <p>Para terminar el recorrido, haga click en el último punto.</p>
+                </div>
+                <div v-if="store.modoInteraccion == 'poligono-autos'">
+                    <p>Dibuje una zona para ver los autos que se encuentran en ella.</p>
+                    <p>Para completar el polígono, haga click en el primer punto.</p>
+                </div>
+            </div>
             <div class="barra-y-boton">
                 <div v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino'"
                     style="height: 20px;">
@@ -99,7 +115,7 @@ export default {
                     <locationTarget />
                 </BotonCircular>
 
-                <v-btn-toggle v-if="store.tipoUsuario == 'anonimo'" rounded="xl" density="comfortable"
+                <v-btn-toggle v-if="store.tipoUsuario == 'anonimo' && !store.mapaCompleto" rounded="xl" density="comfortable"
                     v-model="store.modoInteraccion"
                     style="margin-top: 3px; margin-left: 10px; border-color: rgba(0, 0, 0, 0.387); border-width: 2px; border-style: solid;">
                     <v-btn disabled icon="mdi-map-marker" style="border-right-style: solid;border-right-width: 2px;border-right-color: #858585;"></v-btn>
@@ -144,7 +160,7 @@ export default {
 
         <!-- Punto de ubicacion de usuario -->
         <ol-geolocation :projection="projectionName" @change:position="geolocationChanged"
-            v-if="store.modoInteraccion == 'punto-solicitud'">
+            v-if="store.tipoUsuario == 'anonimo'">
             <template>
                 <ol-vector-layer :zIndex="1002">
                     <ol-source-vector>
@@ -246,6 +262,11 @@ export default {
     display: flex;
     width: 100%;
     justify-content: space-between;
+    pointer-events: none;
+}
+
+.overlay > *{
+    pointer-events: all;
 }
 
 .boton-poligono {
@@ -301,5 +322,21 @@ export default {
 .btn-des.v-btn--active{
     background-color: #26A099 !important;
     color: white !important;
+}
+
+.ayuda-interaccion{
+    background-color: white;
+    color: #000000c4;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #a2a2a2;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    pointer-events: none;
+    opacity: 0.77;
+    margin: 10px;
 }
 </style>

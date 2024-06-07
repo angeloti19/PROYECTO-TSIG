@@ -22,10 +22,10 @@ export default{
 
 <template>
     <div class="contenedor">
-        <div class="seccion-mapa">
+        <div class="seccion-mapa" :class="{ 'mapa-completo': store.mapaCompleto }">
             <Mapa :key="store.tipoUsuario"/>
         </div>
-        <div class="seccion-info">
+        <div class="seccion-info" :class="{ 'mapa-completo': store.mapaCompleto }">
            <PanelInformacion/>
         </div>
     </div>
@@ -44,9 +44,17 @@ export default{
 .seccion-mapa{
     flex-basis: 64%;
 }
+.seccion-mapa.mapa-completo{
+    flex-basis: 100%;
+}
 
 .seccion-info{
     flex-basis: 36%;
 }
+
+.seccion-info.mapa-completo{
+    display: none;
+}
+
 
 </style>

@@ -23,7 +23,7 @@ export const store = reactive({
   currentResolution: 0,
   _puntoSolicitud: undefined,
   puntoDestino: undefined,
-  currentGeolocation: [],
+  mapaCompleto: false,
   //Referencias 
   viewReference: undefined,
   mapReference: undefined,
@@ -40,7 +40,7 @@ export const store = reactive({
   mostrandoHeatMapAutos: false,
   mostrandoZonaSinCobertura: false,
   //Manejo de estado de interaccion
-  modoInteraccion: undefined,
+  _modoInteraccion: undefined,
   tipoInteraccion: "",
   //Sesion
   tipoUsuario: undefined,
@@ -59,6 +59,17 @@ export const store = reactive({
   },
   get puntoSolicitud(){
     return this._puntoSolicitud
+  },
+  set modoInteraccion(modo){
+    if(modo == "punto-sucursal" || modo == "recorrido-auto" || modo == "poligono-autos"){
+      this.mapaCompleto = true
+    }else{
+      this.mapaCompleto = false
+    }
+    this._modoInteraccion = modo
+  },
+  get modoInteraccion(){
+    return this._modoInteraccion
   },
   usarUbicacion() {
     if (this.currentGeolocation.length == 0) {
@@ -279,6 +290,11 @@ export const store = reactive({
     }
   },
   iniciarBusquedaPoligono(){
+    if(this.modoInteraccion == "poligono-autos"){
+      this.modoInteraccion = undefined
+      this.agregarInteraccion("Point")
+      return
+    }
     this.modoInteraccion = "poligono-autos"
     this.agregarInteraccion("Polygon")
   },

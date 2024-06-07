@@ -107,7 +107,6 @@ export default{
         <div style="height:100%" v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == 'punto-destino' || store.modoInteraccion == undefined">
             <div class="seccion-contenido">
                 <div class="title-bar">
-                    <span v-if="store.IsUserLogged">[{{ store.role }}] </span>
                     <span>{{ getSeccionPorId(store.seccionActual).titulo }}</span>
                 </div>
                 <div class="cuerpo">
