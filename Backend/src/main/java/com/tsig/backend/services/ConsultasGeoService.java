@@ -2,6 +2,7 @@ package com.tsig.backend.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.util.GeometryCombiner;
@@ -10,8 +11,12 @@ import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tsig.backend.converters.AutomotoraConverter;
+import com.tsig.backend.datatypes.DtAutomotora;
 import com.tsig.backend.entities.Auto;
+import com.tsig.backend.entities.Automotora;
 import com.tsig.backend.repositories.AutoRepository;
+import com.tsig.backend.repositories.AutomotoraRepository;
 import com.tsig.backend.utils.MetodosGeo;
 
 @Service
@@ -19,6 +24,12 @@ public class ConsultasGeoService {
 
     @Autowired
     AutoRepository autoRepository;
+
+    @Autowired
+    AutomotoraRepository automotoraRepository;
+
+    @Autowired
+    AutomotoraConverter automotoraConverter;
 
     MetodosGeo metodosGeo = new MetodosGeo();
     
@@ -77,4 +88,16 @@ public class ConsultasGeoService {
 
     }
 
+    public List<DtAutomotora> automotorasTop10(){
+        List<Automotora> automotoras = automotoraRepository.findAll();
+        List<DtAutomotora> dtAutomotoras = automotoras.stream()
+                                                      .map(automotora -> automotoraConverter
+                                                      .toDt(automotora))
+                                                      .collect(Collectors.toList());
+        dtAutomotoras = dtAutomotoras.stream()
+                                     .limit(10)
+                                     .sorted((a,b) -> Integer.compare(b.getCantAutosTotal(), a.getCantAutosTotal()))
+                                     .collect(Collectors.toList());
+        return dtAutomotoras;
+    }
 }

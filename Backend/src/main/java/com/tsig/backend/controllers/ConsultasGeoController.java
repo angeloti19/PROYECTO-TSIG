@@ -23,5 +23,14 @@ public class ConsultasGeoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @GetMapping("/top10Automotoras")
+    public ResponseEntity<?> getTop10Automotoras() throws Exception{
+        try {
+            return ResponseEntity.ok(consultasGeoService.automotorasTop10());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
     
 }
