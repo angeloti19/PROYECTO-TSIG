@@ -187,6 +187,12 @@ export const store = reactive({
     this.mapReference.addInteraction(interaccion);
     this.interaccionRef = interaccion
   },
+  eliminarInteraccion(){
+    if(this.interaccionRef){
+      this.mapReference.removeInteraction(this.interaccionRef)
+      this.interaccionRef = undefined
+    }
+  },
   drawstart(event){
     let puntoClick = event.feature.values_.geometry.flatCoordinates
     //Si el modo es punto de solicitud

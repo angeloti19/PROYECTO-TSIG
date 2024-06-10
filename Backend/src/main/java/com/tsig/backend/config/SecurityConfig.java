@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()    // End points -> Registro y Login
                 .requestMatchers(
                     "/api/automotora", 
+                    "/api/automotora/{atmId}",
                                 "/api/autoSolicitud/**", 
                                 "/api/autoSucursalCercanos/**"
                                 ).permitAll()                           // End points -> Usuario anonimo

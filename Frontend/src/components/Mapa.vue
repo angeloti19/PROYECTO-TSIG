@@ -1,12 +1,12 @@
 <script>
 import { store } from '@/store'
 import BotonCircular from './BotonCircular.vue';
-import logo from './icons/logo.vue';
 import poligono from './icons/poligono.vue'
 import ubicacion from './icons/ubicacion.vue'
 import locationTarget from './icons/locationTarget.vue'
-import Map from "ol/Map";
 import BusquedaEspecifica from './BusquedaEspecifica.vue';
+import AlertModal from '@/components/modales/AlertModal.vue';
+import axios from 'axios';
 
 export default {
     name: 'mapa',
@@ -15,7 +15,8 @@ export default {
         poligono,
         ubicacion,
         BusquedaEspecifica,
-        locationTarget
+        locationTarget,
+        AlertModal
     },
     data() {
         return {
@@ -24,7 +25,8 @@ export default {
             projectionDef: '+proj=utm +zone=21 +south +datum=WGS84 +units=m +no_defs +type=crs',
             projectionExtent: [166021.44, 1116915.04, 833978.56, 10000000.0],
             anchor: [0.517, 150],
-            montevideoExtent: [550943, 6132427, 591081, 6161393]
+            montevideoExtent: [550943, 6132427, 591081, 6161393],
+            selectedFeature: null // Variable para almacenar el feature seleccionado
         }
     },
     methods: {
@@ -43,7 +45,99 @@ export default {
             this.store.usarUbicacion()
             //this.$refs.view.setCenter(event.target.getPosition());
             //this.puntoSolicitud = event.target.getPosition();
-        }
+        },
+        async handleMapClick (event) {
+            if(store.modoInteraccion != undefined){
+                return 
+            }
+
+            this.$refs.alertModal.setContenido("Propiedades auto: ", "cargando");
+            this.$refs.alertModal.abrir();
+
+            const x = Math.floor(event.pixel[0]);
+            const y = Math.floor(event.pixel[1]);
+
+            const urlAuto = 'http://localhost:8080/geoserver/wms' +
+                '?SERVICE=WMS&' +
+                'VERSION=1.1.0&' +
+                'REQUEST=GetFeatureInfo&' +
+                'TYPENAME=tsige:auto&' +
+                'LAYERS=tsige:auto&'+
+                'INFO_FORMAT=application/json&' +
+                'SRSNAME=EPSG:32721&' +
+                'BBOX='+store.mapReference.getView().calculateExtent().join(',') + '&' +
+                'WIDTH='+store.mapReference.getSize()[0]+ '&' +
+                'HEIGHT='+store.mapReference.getSize()[1]+ '&' +
+                'QUERY_LAYERS=tsige:auto&' +
+                `X=${x}&` +
+                `Y=${y}&`;
+
+                const urlSucursal = 'http://localhost:8080/geoserver/wms' +
+                '?SERVICE=WMS&' +
+                'VERSION=1.1.0&' +
+                'REQUEST=GetFeatureInfo&' +
+                'TYPENAME=tsige:sucursal&' +
+                'LAYERS=tsige:sucursal&'+
+                'INFO_FORMAT=application/json&' +
+                'SRSNAME=EPSG:32721&' +
+                'BBOX='+store.mapReference.getView().calculateExtent().join(',') + '&' +
+                'WIDTH='+store.mapReference.getSize()[0]+ '&' +
+                'HEIGHT='+store.mapReference.getSize()[1]+ '&' +
+                'QUERY_LAYERS=tsige:sucursal&' +
+                `X=${x}&` +
+                `Y=${y}&`;
+
+            console.log("URL AUTO: "+ urlAuto);
+            console.log("URL SUCURSAL: "+ urlSucursal);
+
+            Promise.all([fetch(urlAuto), fetch(urlSucursal)])
+                .then(responses => Promise.all(responses.map(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                    return response.json();
+                })))
+                .then(async dataArray => {
+                    const [dataAuto, dataSucursal] = dataArray;
+
+                    console.log("DataAuto: ", dataAuto);
+                    console.log("DataSucursal: ", dataSucursal);
+
+                    // Extrae las características directamente
+                    const featuresAuto = dataAuto.features;
+                    const featuresSucursal = dataSucursal.features;
+
+                    console.log("featuresAuto: ", featuresAuto);
+                    console.log("featuresSucursal: ", featuresSucursal);
+
+                    if (featuresAuto && featuresAuto.length > 0) {
+                        this.selectedFeature = featuresAuto[0].automotora_id; // Aquí guardamos el primer feature de autos
+                        console.log("selectedFeature: ", this.selectedFeature);
+                        this.$refs.alertModal.setContenido("Propiedades auto: ", this.selectedFeature);
+                        
+                    } else if(featuresSucursal && featuresSucursal.length > 0) {
+
+                        this.selectedFeature = featuresSucursal[0];  // Aquí guardamos el primer feature de autos
+
+                        const response = await axios.get('/api/automotora/'+featuresSucursal[0].properties.automotora_id)
+                        .then(function (response) {
+                            this.$refs.alertModal.setContenido("Propiedades sucursal: ", response.data );
+                        }.bind(this))
+                        .catch(function (error) {
+                            console.log("Error: " + error.response.data);
+                        }.bind(this));
+                    }else{
+                        this.$refs.alertModal.setContenido("Error: ", "No se encontro informacion en el punto");
+                        this.selectedFeature = null;
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching WFS GetFeatureInfo:", error);
+                });
+    },
+    closeModal() {
+      this.selectedFeature = null;
+    }
     },
     mounted() {
         store.viewReference = this.$refs.view
@@ -59,6 +153,7 @@ export default {
             store.autosSucursalCercanos()
         }
 
+        store.mapReference.on('singleclick', this.handleMapClick);
 
     },
     computed: {
@@ -205,6 +300,9 @@ export default {
                 </ol-feature>
             </ol-source-vector>
         </ol-vector-layer>
+
+        <AlertModal ref="alertModal"/>
+
     </ol-map>
 
 </template>

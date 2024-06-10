@@ -64,6 +64,7 @@ export default{
         <button class="boton" @click="store.modoInteraccion = 'punto-solicitud'">Cambiar a modo pto solicitud</button>
         <button class="boton" @click="store.modoInteraccion = 'punto-sucursal'">Cambiar a modo pto sucursal</button>
         <button class="boton" @click="store.modoInteraccion = 'recorrido-auto'">Cambiar a modo recorrido auto</button>
+        <button class="boton" @click="store.eliminarInteraccion()">Eliminar interaccion</button>
     </div>
 </template>
 
