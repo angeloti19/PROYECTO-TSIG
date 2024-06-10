@@ -34,9 +34,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/automotora", 
                     "/api/automotora/{atmId}",
-                                "/api/autoSolicitud/**", 
-                                "/api/autoSucursalCercanos/**"
-                                ).permitAll()                           // End points -> Usuario anonimo
+                    "/api/consultas/top10Automotoras",
+                    "/api/autoSolicitud/**", 
+                    "/api/autoSucursalCercanos/**"
+                    ).permitAll()                           // End points -> Usuario anonimo
                 .requestMatchers(
                     "/swagger-ui/**", 
                                 "/v3/api-docs/**"

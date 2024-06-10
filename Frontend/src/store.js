@@ -13,7 +13,7 @@ import { Stroke, Fill } from 'ol/style';
 
 export const store = reactive({
   //Mapa
-  currentGeolocation: [],
+  _currentGeolocation: [],
   center: [575628.150457, 6141793.265429],
   zoom: 14,
   rotation: 0,
@@ -24,6 +24,9 @@ export const store = reactive({
   _puntoSolicitud: undefined,
   puntoDestino: undefined,
   mapaCompleto: false,
+  ubicacionInfo: undefined,
+  contenidoInfo: undefined,
+  primeraVez: true,
   //Referencias 
   viewReference: undefined,
   mapReference: undefined,
@@ -61,6 +64,8 @@ export const store = reactive({
     return this._puntoSolicitud
   },
   set modoInteraccion(modo){
+    this.ubicacionInfo = undefined
+    this.contenidoInfo = undefined
     if(modo == "punto-sucursal" || modo == "recorrido-auto" || modo == "poligono-autos"){
       this.mapaCompleto = true
     }else{
@@ -70,6 +75,16 @@ export const store = reactive({
   },
   get modoInteraccion(){
     return this._modoInteraccion
+  },
+  set currentGeolocation(geolocation){
+    this._currentGeolocation = geolocation
+    if(this.primeraVez){
+      this.usarUbicacion()
+      this.primeraVez = false
+    }
+  },
+  get currentGeolocation(){
+    return this._currentGeolocation
   },
   usarUbicacion() {
     if (this.currentGeolocation.length == 0) {
@@ -105,7 +120,7 @@ export const store = reactive({
     }
 
     const capaSucursales = new TileLayer({
-      zIndex: 1002,
+      zIndex: 1003,
       visible: true,
       minZoom: 13,
       source: new TileWMS({
@@ -312,7 +327,7 @@ export const store = reactive({
         y: poligono[i + 1]
       })
     }
-    this.modoInteraccion = "punto-solicitud"
+    this.modoInteraccion = undefined
     this.agregarInteraccion("Point")
 
     let wkt = "POLYGON(("

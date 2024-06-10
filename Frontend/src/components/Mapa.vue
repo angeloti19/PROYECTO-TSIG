@@ -5,7 +5,6 @@ import poligono from './icons/poligono.vue'
 import ubicacion from './icons/ubicacion.vue'
 import locationTarget from './icons/locationTarget.vue'
 import BusquedaEspecifica from './BusquedaEspecifica.vue';
-import AlertModal from '@/components/modales/AlertModal.vue';
 import axios from 'axios';
 
 export default {
@@ -15,8 +14,7 @@ export default {
         poligono,
         ubicacion,
         BusquedaEspecifica,
-        locationTarget,
-        AlertModal
+        locationTarget
     },
     data() {
         return {
@@ -26,7 +24,7 @@ export default {
             projectionExtent: [166021.44, 1116915.04, 833978.56, 10000000.0],
             anchor: [0.517, 150],
             montevideoExtent: [550943, 6132427, 591081, 6161393],
-            selectedFeature: null // Variable para almacenar el feature seleccionado
+            selectedFeature: null // Variable para almacenar el feature seleccionado,
         }
     },
     methods: {
@@ -42,7 +40,6 @@ export default {
         },
         geolocationChanged(event) {
             this.store.currentGeolocation = event.target.getPosition();
-            this.store.usarUbicacion()
             //this.$refs.view.setCenter(event.target.getPosition());
             //this.puntoSolicitud = event.target.getPosition();
         },
@@ -51,8 +48,10 @@ export default {
                 return 
             }
 
-            this.$refs.alertModal.setContenido("Propiedades auto: ", "cargando");
-            this.$refs.alertModal.abrir();
+            const ubicacion = store.mapReference.getCoordinateFromPixel(event.pixel);
+
+            this.store.contenidoInfo = undefined;
+            this.store.ubicacionInfo = [ubicacion[0], ubicacion[1]];
 
             const x = Math.floor(event.pixel[0]);
             const y = Math.floor(event.pixel[1]);
@@ -87,8 +86,6 @@ export default {
                 `X=${x}&` +
                 `Y=${y}&`;
 
-            console.log("URL AUTO: "+ urlAuto);
-            console.log("URL SUCURSAL: "+ urlSucursal);
 
             Promise.all([fetch(urlAuto), fetch(urlSucursal)])
                 .then(responses => Promise.all(responses.map(response => {
@@ -100,34 +97,43 @@ export default {
                 .then(async dataArray => {
                     const [dataAuto, dataSucursal] = dataArray;
 
-                    console.log("DataAuto: ", dataAuto);
-                    console.log("DataSucursal: ", dataSucursal);
-
                     // Extrae las características directamente
                     const featuresAuto = dataAuto.features;
                     const featuresSucursal = dataSucursal.features;
 
-                    console.log("featuresAuto: ", featuresAuto);
-                    console.log("featuresSucursal: ", featuresSucursal);
-
                     if (featuresAuto && featuresAuto.length > 0) {
-                        this.selectedFeature = featuresAuto[0].automotora_id; // Aquí guardamos el primer feature de autos
-                        console.log("selectedFeature: ", this.selectedFeature);
-                        this.$refs.alertModal.setContenido("Propiedades auto: ", this.selectedFeature);
-                        
-                    } else if(featuresSucursal && featuresSucursal.length > 0) {
+                        this.selectedFeature = featuresAuto[0]; // Aquí guardamos el primer feature de autos
 
-                        this.selectedFeature = featuresSucursal[0];  // Aquí guardamos el primer feature de autos
-
-                        const response = await axios.get('/api/automotora/'+featuresSucursal[0].properties.automotora_id)
+                        const response = await axios.get('/api/automotora/'+featuresAuto[0].properties.automotora_id)
                         .then(function (response) {
-                            this.$refs.alertModal.setContenido("Propiedades sucursal: ", response.data );
+                            this.store.contenidoInfo = {tipo: "Auto",
+                                                        contenido: this.selectedFeature,
+                                                        automotora: response.data};     
                         }.bind(this))
                         .catch(function (error) {
                             console.log("Error: " + error.response.data);
+                            this.store.contenidoInfo = {tipo: "Error",
+                                                        contenido: "No se pudieron conseguir los datos"};
+                        }.bind(this));
+                                           
+                    } else if(featuresSucursal && featuresSucursal.length > 0) {
+
+                        this.selectedFeature = featuresSucursal[0];  // Aquí guardamos el primer feature de sucursales
+
+                        const response = await axios.get('/api/automotora/'+featuresSucursal[0].properties.automotora_id)
+                        .then(function (response) {
+                            this.store.contenidoInfo = {tipo: "Automotora",
+                                                        contenido: response.data,
+                                                        sucursal: featuresSucursal[0]};
+                        }.bind(this))
+                        .catch(function (error) {
+                            console.log("Error: " + error.response.data);
+                            this.store.contenidoInfo = {tipo: "Error",
+                                                        contenido: "No se pudieron conseguir los datos"};
                         }.bind(this));
                     }else{
-                        this.$refs.alertModal.setContenido("Error: ", "No se encontro informacion en el punto");
+                        this.store.contenidoInfo = undefined
+                        this.store.ubicacionInfo = undefined
                         this.selectedFeature = null;
                     }
                 })
@@ -140,17 +146,22 @@ export default {
     }
     },
     mounted() {
+        this.store.primeraVez = true
         store.viewReference = this.$refs.view
         store.mapReference = this.$refs.mapref.map
         store.agregarInteraccion("Point")
+        this.store.contenidoInfo = undefined;
+        this.store.ubicacionInfo = undefined;
         if (store.tipoUsuario == "admin") {
             store.modoInteraccion = undefined
             store.fetchSucursalesMapa("") //Hacer un fetch con filtro "" hace que sobreescriba el filtro anterior
             store.fetchAutosMapa("")
         } else {
             store.modoInteraccion = undefined
-            
             store.autosSucursalCercanos()
+            if(this.store.currentGeolocation.length != 0){
+                this.store.currentGeolocation = this.store.currentGeolocation
+            }
         }
 
         store.mapReference.on('singleclick', this.handleMapClick);
@@ -301,7 +312,46 @@ export default {
             </ol-source-vector>
         </ol-vector-layer>
 
-        <AlertModal ref="alertModal"/>
+        <ol-overlay
+        v-if="store.ubicacionInfo != undefined && store.modoInteraccion == undefined"
+        :position="store.ubicacionInfo"
+        :offset="[0, 15]"
+        positioning="top-center"
+        >
+            <div class="click-info">
+                <p v-if="store.contenidoInfo == undefined"> Cargando... </p>
+                <div v-else>
+                    <v-icon style="margin-top: -5px;">{{ store.contenidoInfo.tipo == "Automotora" ? 'mdi-office-building' : store.contenidoInfo.tipo == "Auto" ? 'mdi-car-side' : ""}}</v-icon>
+                    <p style="font-weight: 600; font-size: 20px; display:inline; margin-left: 5px;">
+                        {{ store.contenidoInfo.tipo == "Automotora" ? 
+                                store.contenidoInfo.contenido.nombre + " - " 
+                                + store.contenidoInfo.sucursal.properties.nombre 
+                            : store.contenidoInfo.tipo == "Auto" ?
+                                store.contenidoInfo.automotora.nombre + " - " 
+                                + store.contenidoInfo.contenido.id.split(".")[1]
+                            : "Error"
+                        }}
+                    </p>
+                    <div v-if="store.contenidoInfo.tipo == 'Automotora'">
+                        <p>{{ store.contenidoInfo.contenido.cantSucursales }} sucursales</p>
+                        <p>{{ store.contenidoInfo.contenido.cantAutosTotal }} autos</p>
+                        <div style="margin-left: 10px;">
+                            <p>{{ store.contenidoInfo.contenido.cantAutosComb }} a combustión</p>
+                            <p>{{ store.contenidoInfo.contenido.cantAutosElec }} eléctrico{{ store.contenidoInfo.contenido.cantAutosElec != 1 ? "s" : ""}}</p>
+                        </div>
+                        
+                    </div>
+                    <div v-if="store.contenidoInfo.tipo == 'Auto'">
+                        <p>Tipo: {{ store.contenidoInfo.contenido.properties.electrico ? 'Eléctrico' : 'Combustión' }}</p>
+                        <p>Distancia máxima de desvío: {{ store.contenidoInfo.contenido.properties.dist_max }}m</p>
+                    </div>
+                    <div v-if="store.contenidoInfo.tipo == 'Error'">
+                        <p>{{ store.contenidoInfo }}</p>
+                    </div>
+                </div>
+                
+            </div>
+        </ol-overlay>
 
     </ol-map>
 
@@ -436,5 +486,17 @@ export default {
     pointer-events: none;
     opacity: 0.77;
     margin: 10px;
+}
+
+.click-info{
+    background-color: white;
+    padding: 10px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.click-info:hover{
+    opacity: 0.5;
+    transition: opacity 0.25s;
 }
 </style>
