@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.util.GeometryCombiner;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 import com.tsig.backend.converters.AutoConverter;
 import com.tsig.backend.converters.SucursalConverter;
 import com.tsig.backend.datatypes.DtAuto;
+import com.tsig.backend.datatypes.DtAutoExtendido;
+import com.tsig.backend.datatypes.DtCoordenada;
 import com.tsig.backend.datatypes.DtListAutoSucursal;
 import com.tsig.backend.datatypes.DtSolicitudAuto;
 import com.tsig.backend.datatypes.DtSucursal;
@@ -137,8 +142,66 @@ public class SolicitudAutoService {
         }
 
         Auto autoMasCercano = encontrarAutoMasCercano(autosDisponibles, puntoSolicitud);
+        if(puntosEnBuffer(autoMasCercano, puntoSolicitud)){
+            //Caso comun, la zona de cobertura del auto ya cubre el punto de solicitud
+            //Por conveniencia se envia con datatype extendido con punto de levante nulo
+            DtAutoExtendido auto = new DtAutoExtendido(autoConverter.toDto(autoMasCercano), null);
+            return ResponseEntity.ok(auto);
+        }else{
+            //La zona de cobertura del auto no cubre el punto de solicitud, se necesita retornar un punto de levante al que pueda acceder
+            
+            //Se obtiene la geometria de calles
+            String wktCalle = autoRepo.geoTextoCapaCalle();
+            Geometry geometryCalle = null;
+            try {
+                geometryCalle = wktReader.read(wktCalle);
+                // Validar y reparar la geometría
+                if (!geometryCalle.isValid()) {
+                    geometryCalle = geometryCalle.buffer(0);
+                    if (!geometryCalle.isValid()) {
+                        throw new RuntimeException("La geometría de calles no pudo ser reparada");
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
-        return ResponseEntity.ok(autoConverter.toDto(autoMasCercano));
+            //Se obtiene el borde de la zona de cobertura
+            Geometry buffer = metodosGeo.calcularBuffer(autoMasCercano.getRecorrido(), autoMasCercano.getDist_max());
+            Geometry bordeBuffer = buffer.getBoundary();
+
+            //Se obtiene los puntos/punto de su interceccion
+            Geometry interseccion = bordeBuffer.intersection(geometryCalle);
+
+            Coordinate coordenadaLevante = null;
+            if(interseccion instanceof Point){
+                //Si es solo un punto
+                Point puntoLevanteGeom = (Point) interseccion;
+                coordenadaLevante = puntoLevanteGeom.getCoordinate();
+            }else if(interseccion instanceof MultiPoint){
+                //Si son multiples puntos
+                MultiPoint puntos = (MultiPoint) interseccion;
+                Coordinate[] coordenadas = puntos.getCoordinates();
+
+                //Se busca la coordenada mas cerca del punto de solicitud
+                Coordinate coordenadaMasCercana = null;
+                Double distanciaMinima = Double.MAX_VALUE;
+                for(Coordinate coordenada: coordenadas){
+                    double distancia = coordenada.distance(puntoSolicitud.getCoordinate());
+                    if(distancia < distanciaMinima){
+                        distanciaMinima = distancia;
+                        coordenadaMasCercana = coordenada;
+                    }
+                }
+                coordenadaLevante = coordenadaMasCercana;
+            }
+
+            //Se envian los datos del auto junto a la coordenada de levante
+            DtCoordenada puntoLevante = new DtCoordenada(coordenadaLevante.getX(), coordenadaLevante.getY());
+            DtAutoExtendido autoYpuntoLevante = new DtAutoExtendido(autoConverter.toDto(autoMasCercano), puntoLevante);
+            return ResponseEntity.ok(autoYpuntoLevante);
+        }
+        //return ResponseEntity.ok(autoConverter.toDto(autoMasCercano));
     }
 
     public ResponseEntity<?> AutosYSucursalesCercanos(String ptoSolicitud) throws Exception{

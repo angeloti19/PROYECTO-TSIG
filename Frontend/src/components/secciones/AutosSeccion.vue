@@ -57,6 +57,7 @@ export default{
                 }.bind(this));
         },
         async solicitarAuto(){
+            this.store.puntoLevante = undefined
             let filtraPorAutomotora = true
             if(this.automotoraId == "1000000"){
                 filtraPorAutomotora = false
@@ -96,15 +97,18 @@ export default{
                 .then(function (response) {
                     console.log(response)
                     console.log(response.data)
-                    console.log(response.data.body.electrico)
                     this.autoSolicitado = {
-                        "matricula": response.data.body.matricula,
-                        "dist_max": response.data.body.dist_max,
-                        "electrico": response.data.body.electrico,
-                        "idAutomotora": response.data.body.idAutomotora,
-                        "recorrido": response.data.body.recorrido
+                        "matricula": response.data.body.auto.matricula,
+                        "dist_max": response.data.body.auto.dist_max,
+                        "electrico": response.data.body.auto.electrico,
+                        "idAutomotora": response.data.body.auto.idAutomotora,
+                        "recorrido": response.data.body.auto.recorrido
                     }
+                    this.store.fetchAutosMapa(`IN ('${this.autoSolicitado.matricula}')`, true)
                     this.store.centrarMapaEnCoordenada([this.autoSolicitado.recorrido[0].x,this.autoSolicitado.recorrido[0].y])
+                    if(response.data.body.puntoLevante){
+                        this.store.puntoLevante = [response.data.body.puntoLevante.x, response.data.body.puntoLevante.y ]
+                    }
                     this.buscandoAuto = false
                 }.bind(this))
                 .catch(function (error) {

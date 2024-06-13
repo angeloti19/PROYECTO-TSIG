@@ -14,4 +14,7 @@ public interface AutoRepository extends JpaRepository<Auto, Long> {
     @Query(value = "SELECT st_astext(geom) FROM \"00departamento\" WHERE nombre = 'MONTEVIDEO'", nativeQuery = true)
     String geoTextoMontevideo();
 
+    @Query(value = "SELECT st_astext(ST_Union(geom)) FROM \"01_ejes\" ", nativeQuery = true)
+    String geoTextoCapaCalle();
+
 }

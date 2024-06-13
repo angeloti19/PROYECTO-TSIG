@@ -312,6 +312,20 @@ export default {
             </ol-source-vector>
         </ol-vector-layer>
 
+        <!--Punto de levante -->
+        <ol-vector-layer :zIndex="1009"
+            v-if="store.puntoLevante != undefined && store.tipoUsuario == 'anonimo'">
+            <ol-source-vector>
+                <ol-feature ref="posicionLevante">
+                    <ol-geom-point :coordinates="store.puntoLevante"></ol-geom-point>
+                    <ol-style>
+                        <ol-style-icon src="PuntoLevante.png" :anchor=anchor anchorXUnits="fraction"
+                            anchorYUnits="pixels" :scale="0.28"></ol-style-icon>
+                    </ol-style>
+                </ol-feature>
+            </ol-source-vector>
+        </ol-vector-layer>
+
         <ol-overlay
         v-if="store.ubicacionInfo != undefined && store.modoInteraccion == undefined"
         :position="store.ubicacionInfo"

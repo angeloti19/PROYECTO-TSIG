@@ -23,6 +23,7 @@ export const store = reactive({
   currentResolution: 0,
   _puntoSolicitud: undefined,
   puntoDestino: undefined,
+  puntoLevante: undefined,
   mapaCompleto: false,
   ubicacionInfo: undefined,
   contenidoInfo: undefined,
@@ -141,10 +142,15 @@ export const store = reactive({
     params.t = new Date().getMilliseconds()
     this.capaSucursales.getSource().updateParams(params)
   },
-  fetchAutosMapa(filtro) {
+  fetchAutosMapa(filtro, noSobreescribir) {
     // Si se proporciona un filtro, se utiliza
     if(filtro != undefined){
-      this.filtroAuto = filtro
+      if(noSobreescribir){
+        this.filtroAuto = "(" + this.filtroAuto + ") OR (" + filtro + ")"
+      }else{
+        this.filtroAuto = filtro
+      }
+      
     }
     // Eliminar la capa anterior si existe
     if (this.capaAutos) {
