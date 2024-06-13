@@ -57,6 +57,11 @@ public class SolicitudAutoService {
         return buffer.contains(ptoSoli);
     }
 
+    private boolean bufferConDistMax(Auto auto, Geometry ptoSoli, Float dist_max){
+        Geometry buffer = metodosGeo.calcularBuffer(auto.getRecorrido(), (auto.getDist_max()+dist_max));
+        return buffer.contains(ptoSoli);
+    }
+
     private boolean esDestinoValido(Auto auto, Geometry ptoDestino){
         for(Sucursal sucursal : auto.getAutomotora().getSucursales()){
                 if(sucursal.getUbicacion().distance(ptoDestino) <= distanciaMaxDestino){
@@ -108,10 +113,19 @@ public class SolicitudAutoService {
         Geometry puntoSolicitud = wktReader.read(dtSolicitudAuto.getPtoSolicitud());
         Geometry puntoDestino = wktReader.read(dtSolicitudAuto.getPtoDestino());
 
-        //Actualizamos la lista con los autos, donde su zona de cobertura contengan el punto de solicitud
-        autosDisponibles = autosDisponibles.stream()
-                                           .filter(auto -> puntosEnBuffer(auto, puntoSolicitud))
-                                           .collect(Collectors.toList());
+
+        if(dtSolicitudAuto.getDist_max() == null){
+            //Actualizamos la lista con los autos, donde su zona de cobertura contengan el punto de solicitud
+            autosDisponibles = autosDisponibles.stream()
+                                               .filter(auto -> puntosEnBuffer(auto, puntoSolicitud))
+                                               .collect(Collectors.toList());
+
+        }else{
+            //Actualizamos la lista con los autos, donde su zona de cobertura + dist_max contengan el punto de solicitud
+            autosDisponibles = autosDisponibles.stream()
+                                               .filter(auto -> bufferConDistMax(auto, puntoSolicitud, dtSolicitudAuto.getDist_max()))
+                                               .collect(Collectors.toList());
+        }
         
         //Por ultimo, actualizamos la lista por los autos que cumplan la condicion del destino valido 
         autosDisponibles = autosDisponibles.stream()
@@ -142,7 +156,7 @@ public class SolicitudAutoService {
                      .collect(Collectors.toList());
 
         if(autos.isEmpty()){
-        throw new Exception("No hay autos cercanos a tu ubicacion");
+            throw new Exception("No hay autos cercanos a tu ubicacion");
         }
 
         //Conseguimos la union de las zonas de cobertura de los autos y actualizamos lista de sucursales con las unicas que estan dentro de esa union.
@@ -165,11 +179,9 @@ public class SolicitudAutoService {
         }
         Geometry unionZonaCoberturasReparado = unionZonaCoberturas; //Para evitar un error
         sucursales = sucursales.stream()
-                                   .filter(sucursal -> metodosGeo.estaDentroDeBuffer(sucursal.getUbicacion(), unionZonaCoberturasReparado))
-                                   .collect(Collectors.toList());
+                               .filter(sucursal -> metodosGeo.estaDentroDeBuffer(sucursal.getUbicacion(), unionZonaCoberturasReparado))
+                               .collect(Collectors.toList());
 
-        
-        
         //Convierto autos a DtAuto
         List<DtAuto> dtAutos = autos.stream()
                                     .map(auto -> autoConverter.toDto(auto))

@@ -87,9 +87,11 @@ export default{
                 }
             }
             if(this.filtrarDistMax){
-                url = url.concat("&distMax=" + this.distMax)
+                url = url.concat("&dist_max=" + this.distMax)
             }
+
             this.buscandoAuto = true
+            console.log(url)
             const response = await axios.get(url)
                 .then(function (response) {
                     console.log(response)
