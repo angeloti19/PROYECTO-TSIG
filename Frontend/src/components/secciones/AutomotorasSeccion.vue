@@ -117,6 +117,6 @@ export default {
 }
 
 .boton-agregar-automotora {
-    padding: 15px;
+    padding: 6px 15px;
 }
 </style>

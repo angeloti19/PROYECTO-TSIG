@@ -133,7 +133,7 @@ export default{
     <AlertModal ref="alertModal"/>
     <div style="padding: 15px 15px;">
         <div style="display:flex; align-items: center; margin-bottom: 15px;">
-            <button @click="solicitarAuto" class="boton blanco con-borde">Solicitar auto</button><div><p style="font-size:x-small; text-align: center;">Filtro</p><v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon></div>
+            <button @click="solicitarAuto" class="boton blanco con-borde">Solicitar auto</button><div @click="toggleFiltroVentana()"  style="display: flex; flex-direction: column; align-items: flex-end;margin: 0 10px" class="filtro"><p style="font-size:13px; ">Filtro</p><v-icon style="margin-left: 10px; margin-right: 4px;">mdi-filter</v-icon></div>
         </div>
         <v-fade-transition>
         <div style="background-color: #aedddd; color: black; padding: 20px; border: 2px solid white; border-radius: 20px;" v-if="autoSolicitado != undefined">
@@ -190,8 +190,6 @@ export default{
 
 <style scoped>
 .filtro{
-    margin-left: 10px;
-    margin-right: 4px;
     opacity: 0.7;
     cursor: pointer;
 }

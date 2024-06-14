@@ -54,12 +54,12 @@ export default{
                             id: 'consultas',
                             tipoUsuario: 'admin'
                             },
-                            {titulo: 'Datos de desarrollo',
-                            tooltip: 'Datos de desarrollo',
-                            icono: 'mdi-emoticon',
-                            id: 'desarrollo',
-                            tipoUsuario: 'ambos'
-                            },
+                            // {titulo: 'Datos de desarrollo',
+                            // tooltip: 'Datos de desarrollo',
+                            // icono: 'mdi-emoticon',
+                            // id: 'desarrollo',
+                            // tipoUsuario: 'ambos'
+                            // },
                             {titulo: 'Sobre RentYou',
                             tooltip: 'Sobre RentYou',
                             icono: 'mdi-information-outline',

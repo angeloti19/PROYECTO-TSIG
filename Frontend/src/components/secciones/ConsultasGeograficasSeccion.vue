@@ -71,7 +71,7 @@ export default {
 <template>
     <div style="padding: 15px 15px;">
         <div class="check-box">
-            <v-checkbox style="margin: auto;" density="compact" class="ma-0 pa-0" label="Mostrar mapa de calor de autos"
+            <v-checkbox  density="compact" class="ma-0 pa-0" label="Mostrar mapa de calor de autos"
                 v-model="store.mostrandoHeatMapAutos" @change="cambiarMapaCalorAutos"></v-checkbox>
         </div>
         <div class="check-box">
@@ -81,7 +81,7 @@ export default {
         <button class="boton" @click="store.fetchSucursalesMapa('')">Mostrar todas las automotoras</button>
         <button class="boton" @click="automotorasConMasAutos()">Mostrar automotoras con más autos</button>
         <div v-if="isRankingActive" style="margin-bottom: 15px;">
-            <h1><v-icon style="margin: 5px;">mdi-finance</v-icon>Top 10</h1>
+            <h2 style="margin-top: 20px;"><v-icon style="margin: 5px;">mdi-finance</v-icon>Top 10</h2>
             <v-divider style="margin-top: 15px;" />
             <template v-for="(automotora, index) in automotoras" :key="index">
                 <div class="contenedor-automotora">
@@ -120,7 +120,6 @@ export default {
     border-radius: 20px;
     padding: 4px 15px;
     display: flex !important;
-    justify-content: center;
 }
 
 .boton:hover {
@@ -139,7 +138,6 @@ export default {
 
 .check-box {
     display: block;
-    width: 100%;
     cursor: pointer;
     margin-bottom: 10px;
     color: white;

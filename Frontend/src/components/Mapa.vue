@@ -233,7 +233,7 @@ export default {
                     v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino'">
                     <v-expansion-panels>
                         <v-expansion-panel
-                            :title="store.tipoUsuario == 'anonimo' ? 'Cambiar punto de solicitud' : 'Búsqueda rápida'"
+                            :title="store.tipoUsuario == 'anonimo' ? 'Búsqueda rápida' : 'Búsqueda rápida'"
                             :style="tipoUsuario">
                             <v-expansion-panel-text>
                                 <BusquedaEspecifica />
@@ -244,13 +244,17 @@ export default {
 
                 <v-btn-toggle v-if="store.tipoUsuario == 'anonimo' && !store.mapaCompleto" rounded="xl"
                     density="comfortable" v-model="store.modoInteraccion"
-                    style="margin-top: 3px; margin-left: 10px; border: 2px solid rgba(0, 0, 0, 0.387); height: 50px">
+                    style="margin-top: 3px; margin-left: 10px; border: 2px solid rgba(0, 0, 0, 0.387); height: 45px">
                     <v-btn disabled icon="mdi-map-marker"
-                        style="border-right-style: solid; border-right-width: 2px; border-right-color: #858585; background-color: white;"></v-btn>
+                        style="border-right-style: solid; border-right-width: 2px; border-right-color: #858585; background-color: white; padding-left: 4px;"></v-btn>
                     <v-btn autofocus class="btn-sol" value="punto-solicitud"
-                        style="text-transform: none; padding: 5px; border-right: 2px solid rgba(0, 0, 0, 0.387);">Solicitud</v-btn>
+                        style="text-transform: none; padding: 10px; border-right: 2px solid rgba(0, 0, 0, 0.387);">Solicitud
+                        <v-tooltip open-delay="400" activator="parent" location="bottom">Marcar punto de solicitud</v-tooltip>
+                    </v-btn>
                     <v-btn class="btn-des" value="punto-destino"
-                        style="text-transform: none; padding: 5px; padding-right: 10px;">Destino</v-btn>
+                        style="text-transform: none; padding: 10px; padding-right: 20px;">Destino
+                        <v-tooltip open-delay="400" activator="parent" location="bottom">Marcar punto de destino</v-tooltip>
+                    </v-btn>
                 </v-btn-toggle>
             </div>
             <div>
@@ -258,10 +262,12 @@ export default {
                     v-show="store.tipoUsuario == 'anonimo' && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino')"
                     @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario">
                     <locationTarget />
+                    <v-tooltip open-delay="400" activator="parent" location="start">Usar ubicación</v-tooltip>
                 </BotonCircular>
                 <BotonCircular v-show="store.tipoUsuario == 'anonimo'" @click="store.iniciarBusquedaPoligono()"
                     class="boton-poligono" :color="obtenerColorUsuario">
                     <poligono />
+                    <v-tooltip open-delay="400" activator="parent" location="start">Buscar autos por polígono</v-tooltip>
                 </BotonCircular>
             </div>
 
@@ -467,7 +473,7 @@ export default {
 
 .boton-ubicacion {
     margin-left: 10px;
-    margin-top: 3px;
+    margin-top: 10px;
 }
 
 .barra-y-boton {

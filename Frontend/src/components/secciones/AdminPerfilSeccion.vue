@@ -30,7 +30,6 @@ export default{
 
 <template>
     <div style="padding: 15px 15px;">
-        <p style="margin-bottom: 15px;">Esta es la seccion de administrador, desde aqui se podran crear nuevas automotoras, autos y realizar consultas geograficas.</p>
         <button @click="cerrarSesion" class="boton">Cerrar sesion</button>
     </div>
 </template>
