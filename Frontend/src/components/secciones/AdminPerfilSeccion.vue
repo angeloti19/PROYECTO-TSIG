@@ -30,7 +30,24 @@ export default{
 
 <template>
     <div style="padding: 15px 15px;">
-        <p>Esta es la seccion de perfil para admins, donde pueden cerrar su sesion</p>
+        <p style="margin-bottom: 15px;">Esta es la seccion de administrador, desde aqui se podran crear nuevas automotoras, autos y realizar consultas geograficas.</p>
         <button @click="cerrarSesion" class="boton">Cerrar sesion</button>
     </div>
 </template>
+
+<style scoped>
+.boton {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    border: 2px solid gray !important;
+    background-color: #ffffff;
+    color: rgba(0, 0, 0, 0.82);
+}
+
+.boton:hover{
+    background-image: linear-gradient(#ffffff, lightgray);
+}
+</style>

@@ -45,17 +45,12 @@ export default {
 </script>
 
 <template>
-    
-    <div style="position:relative;">
+
+    <div style="position:relative">
         <NuevaAutomotoraModal ref="nuevaAutomotoraModal" @refetch="fetchAutomotoras" />
         <div class="boton-agregar-automotora">
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <button class="boton blanco con-borde" @click="mostrarModalNuevaAutomotora">Nueva automotora</button>
-                <div class="handle"></div>
-            </div>
-
+            <button class="boton" @click="mostrarModalNuevaAutomotora">Nueva automotora</button>
         </div>
-
         <div v-if="automotoras.length == 0" style="text-align:center; margin-top: 80px">
             {{ cargando ? 'Buscando automotoras...' : 'No hay automotoras' }}
         </div>
@@ -93,7 +88,6 @@ export default {
     border-right: none;
     border-left: none;
     border-top: none;
-
 }
 
 .titulo-automotora {
@@ -107,39 +101,22 @@ export default {
     background-color: rgba(0, 0, 0, 0.084);
 }
 
-.boton-agregar-automotora {
-    position: absolute;
-    top: -64px;
-    margin-left: 24%;
-    transition: top 0.5s;
-    padding-top: 20px;
-
-}
-
-.boton-agregar-automotora:hover {
-    position: absolute;
-    top: -30px;
-    margin-left: 24%;
-}
-
-.boton-agregar-automotora .boton {
-    margin-bottom: 0;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-
-}
-
-.handle {
-    width: 0;
-    height: 0;
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-
-    border-top: 8px solid rgba(255, 255, 255, 0.847);
+.boton {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
     cursor: pointer;
-    transition: border-top 0.5s;
+    margin-bottom: 10px;
+    border: 2px solid gray !important;
+    background-color: #ffffff;
+    color: rgba(0, 0, 0, 0.82);
 }
 
-.boton-agregar-automotora:hover .handle {
-    border-top: 0px solid rgba(255, 255, 255, 0.847);
-}</style>
+.boton:hover{
+    background-image: linear-gradient(#ffffff, lightgray);
+}
+
+.boton-agregar-automotora {
+    padding: 15px;
+}
+</style>

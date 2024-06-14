@@ -9,7 +9,7 @@ import ConfirmacionModal from '../modales/ConfirmacionModal.vue';
 import editarIcono from '@/components/icons/editarIcono.vue'
 import AlertModal from '../modales/AlertModal.vue';
 
-export default{
+export default {
     name: 'automotoraSubseccion',
     components: {
         NuevaSucursalModal,
@@ -20,8 +20,8 @@ export default{
         editarIcono,
         AlertModal
     },
-    data(){
-        return{
+    data() {
+        return {
             store,
             sucursales: [],
             autos: [],
@@ -32,22 +32,22 @@ export default{
             sucursalAEliminarNombre: ""
         }
     },
-    mounted(){
+    mounted() {
         this.fetchSucursales()
         this.fetchAutos()
         this.store.fetchSucursalesMapa(`automotora_id = '${this.automotoraId}'`)
         this.store.fetchAutosMapa(`automotora_id = '${this.automotoraId}'`)
     },
-    unmounted(){
+    unmounted() {
         this.store.fetchSucursalesMapa("")
         this.store.fetchAutosMapa("")
     },
-    props:{
-        automotoraId : Number
+    props: {
+        automotoraId: Number
     },
-    emits:['refetch'],
-    methods:{
-        async fetchSucursales(){
+    emits: ['refetch'],
+    methods: {
+        async fetchSucursales() {
             this.sucursales = []
             this.cargandoSucursales = true
             const response = await axios.get("/api/automotora/" + this.automotoraId + "/sucursal")
@@ -66,7 +66,7 @@ export default{
                     this.cargandoSucursales = false
                 }.bind(this));
         },
-        async fetchAutos(){
+        async fetchAutos() {
             this.cargandoAutos = true
             this.autos = []
             const response = await axios.get("/api/automotora/" + this.automotoraId + "/auto")
@@ -87,93 +87,93 @@ export default{
                     this.cargandoAutos = false
                 }.bind(this));
         },
-        seleccionarSucursal(index){
+        seleccionarSucursal(index) {
             console.log("Se selecciono sucursal con index: " + index)
             const coordenadas = this.sucursales[index].coordenadas
             const coord = [coordenadas.x, coordenadas.y]
             this.store.centrarMapaEnCoordenada(coord)
-            
+
         },
-        seleccionarAuto(index){
+        seleccionarAuto(index) {
             console.log("Se selecciono auto con index: " + index)
             const coordenadas = this.autos[index].recorrido[0]
             const coord = [coordenadas.x, coordenadas.y]
             this.store.centrarMapaEnCoordenada(coord)
-            
+
         },
-        mostrarModalNuevaSucursal(){
+        mostrarModalNuevaSucursal() {
             this.$refs.nuevaSucursalModal.abrir()
         },
-        mostrarModalNuevoAuto(){
+        mostrarModalNuevoAuto() {
             this.$refs.nuevoAutoModal.abrir()
         },
-        mostrarConfirmacionEliminarAuto(matricula){
+        mostrarConfirmacionEliminarAuto(matricula) {
             this.autoAEliminarMatricula = matricula
             this.$refs.confirmacionEliminarAuto.abrir()
         },
-        mostrarConfirmacionEliminarSucursal(id, nombre){
+        mostrarConfirmacionEliminarSucursal(id, nombre) {
             this.sucursalAEliminarId = id
             this.sucursalAEliminarNombre = nombre
             this.$refs.confirmacionEliminarSucursal.abrir()
         },
-        mostrarModalEditarAuto(index){
+        mostrarModalEditarAuto(index) {
             let matricula = this.autos[index].matricula
             let distMax = this.autos[index].dist_max
             let tipoAuto = "Combustion"
-            if(this.autos[index].electrico){
+            if (this.autos[index].electrico) {
                 tipoAuto = "Electrico"
             }
             let recorrido = this.autos[index].recorrido
-            
+
             this.$refs.editarAutoModal.setDatosEditar(matricula, distMax, tipoAuto, recorrido)
             this.$refs.editarAutoModal.abrir()
         },
-        mostrarModalEditarSucursal(index){
+        mostrarModalEditarSucursal(index) {
             let id = this.sucursales[index].id
             let nombre = this.sucursales[index].nombre
             let x = this.sucursales[index].coordenadas.x
             let y = this.sucursales[index].coordenadas.y
-            
+
             this.$refs.editarSucursalModal.setDatosEditar(id, nombre, x, y)
             this.$refs.editarSucursalModal.abrir()
         },
-        async eliminarAuto(matricula){
+        async eliminarAuto(matricula) {
             const response = await axios.delete("/api/automotora/" + this.automotoraId + "/auto/" + this.autoAEliminarMatricula)
-            .then(function (response) {
-                if(response.data.statusCode != "OK"){
-                    alert("error")
-                }
-                this.fetchAutos()
-                this.store.fetchAutosMapa(`automotora_id = '${this.automotoraId}'`)
-            }.bind(this))
-            .catch(function (error) {
-                console.log("Error: " + error.response.data);
-            }.bind(this));
+                .then(function (response) {
+                    if (response.data.statusCode != "OK") {
+                        alert("error")
+                    }
+                    this.fetchAutos()
+                    this.store.fetchAutosMapa(`automotora_id = '${this.automotoraId}'`)
+                }.bind(this))
+                .catch(function (error) {
+                    console.log("Error: " + error.response.data);
+                }.bind(this));
         },
-        async eliminarSucursal(){
+        async eliminarSucursal() {
             let ultimaSucursal = false
-            if(this.sucursales.length == 1){
+            if (this.sucursales.length == 1) {
                 ultimaSucursal = true
             }
             const response = await axios.delete("/api/automotora/" + this.automotoraId + "/sucursal/" + this.sucursalAEliminarId)
-            .then(function (response) {
-                if(response.data.statusCode != "OK"){
-                    alert("error")
-                }
-                this.store.fetchSucursalesMapa(`automotora_id = '${this.automotoraId}'`)
-                if(!ultimaSucursal){
-                    // alert("no es ultima")
-                    this.fetchSucursales()
-                }else{
-                    // alert("es ultima")
-                    this.$emit("refetch")
-                }
-            }.bind(this))
-            .catch(function (error) {
-                console.log("Error: " + error.response.data);
-                this.$refs.alertModal.setContenido("Error", error.response.data)
-                this.$refs.alertModal.abrir()
-            }.bind(this));
+                .then(function (response) {
+                    if (response.data.statusCode != "OK") {
+                        alert("error")
+                    }
+                    this.store.fetchSucursalesMapa(`automotora_id = '${this.automotoraId}'`)
+                    if (!ultimaSucursal) {
+                        // alert("no es ultima")
+                        this.fetchSucursales()
+                    } else {
+                        // alert("es ultima")
+                        this.$emit("refetch")
+                    }
+                }.bind(this))
+                .catch(function (error) {
+                    console.log("Error: " + error.response.data);
+                    this.$refs.alertModal.setContenido("Error", error.response.data)
+                    this.$refs.alertModal.abrir()
+                }.bind(this));
         }
     },
 }
@@ -181,38 +181,41 @@ export default{
 
 
 <template>
-    <ConfirmacionModal ref="confirmacionEliminarSucursal" @onConfirm="eliminarSucursal(sucursalAEliminarId)" :mensaje="`Seguro/a que quiere eliminar la sucursal ${ sucursalAEliminarNombre }?`"/>
-    <ConfirmacionModal ref="confirmacionEliminarAuto" @onConfirm="eliminarAuto(autoAEliminarMatricula)" :mensaje="`Seguro/a que quiere eliminar el auto ${ autoAEliminarMatricula }?`"/>
-    <AlertModal ref="alertModal"/>
-    <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales"/>
-    <NuevaSucursalModal ref="editarSucursalModal" editar :automotoraId="automotoraId" @refetch="fetchSucursales"/>
-    <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos"/>
-    <NuevoAutoModal ref="editarAutoModal" editar :automotoraId="automotoraId" @refetch="fetchAutos"/>
+    <ConfirmacionModal ref="confirmacionEliminarSucursal" @onConfirm="eliminarSucursal(sucursalAEliminarId)"
+        :mensaje="`Seguro/a que quiere eliminar la sucursal ${sucursalAEliminarNombre}?`" />
+    <ConfirmacionModal ref="confirmacionEliminarAuto" @onConfirm="eliminarAuto(autoAEliminarMatricula)"
+        :mensaje="`Seguro/a que quiere eliminar el auto ${autoAEliminarMatricula}?`" />
+    <AlertModal ref="alertModal" />
+    <NuevaSucursalModal ref="nuevaSucursalModal" :automotoraId="automotoraId" @refetch="fetchSucursales" />
+    <NuevaSucursalModal ref="editarSucursalModal" editar :automotoraId="automotoraId" @refetch="fetchSucursales" />
+    <NuevoAutoModal ref="nuevoAutoModal" :automotoraId="automotoraId" @refetch="fetchAutos" />
+    <NuevoAutoModal ref="editarAutoModal" editar :automotoraId="automotoraId" @refetch="fetchAutos" />
     <div>
         <div class="contenedor-sucursales"> <!-- Sucursales -->
-            <div style="display:flex; justify-content: space-around; margin-bottom: 8px;">
-                <button class="boton" @click="mostrarModalNuevaSucursal">Nueva sucursal</button>
-                <button class="boton" @click="mostrarModalNuevoAuto">Nuevo auto</button>
+            <div style="display:flex; justify-content: space-around; margin-bottom: 8px; width: 100%;">
+                <button class="boton" @click="mostrarModalNuevaSucursal"><v-icon style="margin-right: 10px;">mdi-plus-circle-outline</v-icon>Nueva sucursal</button>
+                <button class="boton" @click="mostrarModalNuevoAuto"><v-icon style="margin-right: 10px;">mdi-plus-circle-outline</v-icon>Nuevo auto</button>
             </div>
-            
             <p style="font-weight: 600; margin-bottom: 10px"> Sucursales </p>
             <div v-if="sucursales.length == 0" style="text-align:center; margin-top: 15px; margin-bottom: 15px;">
-                {{cargandoSucursales ? 'Buscando sucursales...' : 'No hay sucursales (Esto nunca se deberia ver)'}} <!--Nunca deberia no haber sucursales -->
+                {{ cargandoSucursales ? 'Buscando sucursales...' : 'No hay sucursales (Esto nunca se deberia ver)' }}
+                <!--Nunca deberia no haber sucursales -->
             </div>
             <template v-for="(sucursal, index) in sucursales">
                 <div class="contenedor-sucursal">
                     <div class="titulo-sucursal" @click="seleccionarSucursal(index)">
                         <div style="display: flex;">
-                            <sucursalIcono style="margin-right: 12px; width: 19px;"/>
+                            <sucursalIcono style="margin-right: 12px; width: 19px;" />
                             <div>
                                 {{ sucursal.nombre }}
                             </div>
                         </div>
                         <div style="display: flex;justify-content: space-around;align-items: center;">
                             <div @click="mostrarModalEditarSucursal(index)" class="edit">
-                                <editarIcono style="width: 17px; height: 17px;"/>
+                                <editarIcono style="width: 17px; height: 17px;" />
                             </div>
-                            <v-icon class="close" @click="mostrarConfirmacionEliminarSucursal(sucursal.id, sucursal.nombre)">mdi-window-close</v-icon>
+                            <v-icon class="close"
+                                @click="mostrarConfirmacionEliminarSucursal(sucursal.id, sucursal.nombre)">mdi-window-close</v-icon>
                         </div>
                     </div>
                 </div>
@@ -221,84 +224,106 @@ export default{
         <div class="contenedor-autos">
             <p style="font-weight: 600; margin-bottom: 10px"> Autos </p>
             <div v-if="autos.length == 0" style="text-align:center; margin-top: 15px; margin-bottom: 15px;">
-                {{cargandoAutos ? 'Buscando autos...' : 'No hay autos registrados'}}
+                {{ cargandoAutos ? 'Buscando autos...' : 'No hay autos registrados' }}
             </div>
             <template v-for="(auto, index) in autos">
                 <div class="contenedor-auto">
                     <div class="titulo-auto" @click="seleccionarAuto(index)">
                         <div style="display: flex;">
-                            <autoIcono style="margin-right: 12px; width: 25px; margin-top:3px"/>
+                            <autoIcono style="margin-right: 12px; width: 25px; margin-top:3px" />
                             <div>
                                 {{ auto.matricula }}
                             </div>
                         </div>
                         <div style="display: flex;justify-content: space-around;align-items: center;">
                             <div @click="mostrarModalEditarAuto(index)" class="edit">
-                                <editarIcono style="width: 17px; height: 17px;"/>
+                                <editarIcono style="width: 17px; height: 17px;" />
                             </div>
-                            <v-icon class="close" @click="mostrarConfirmacionEliminarAuto(auto.matricula)">mdi-window-close</v-icon>
+                            <v-icon class="close"
+                                @click="mostrarConfirmacionEliminarAuto(auto.matricula)">mdi-window-close</v-icon>
                         </div>
                     </div>
                 </div>
             </template>
         </div>
-        
+
     </div>
 </template>
 
 
 <style scoped>
-.contenedor-sucursal:hover{
+.contenedor-sucursal:hover {
     border-left-style: solid;
     border-left-color: rgba(255, 255, 255, 0.574);
     border-left-width: 2px;
 
 }
-.contenedor-auto:hover{
+
+.contenedor-auto:hover {
     border-left-style: solid;
     border-left-color: rgba(255, 255, 255, 0.574);
     border-left-width: 2px;
 }
 
-.titulo-sucursal{
+.titulo-sucursal {
     padding: 10px 20px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
 }
-.titulo-sucursal:active{
+
+.titulo-sucursal:active {
     background-color: rgba(0, 0, 0, 0.084);
 }
-.titulo-auto{
+
+.titulo-auto {
     padding: 10px 20px;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
 }
-.titulo-auto:active{
+
+.titulo-auto:active {
     background-color: rgba(0, 0, 0, 0.084);
 }
-.contenedor-sucursales{
-    padding: 10px 35px;
-}
-.contenedor-autos{
+
+.contenedor-sucursales {
     padding: 10px 35px;
 }
 
-.close{
+.contenedor-sucursales button{
+    flex: 1; 
+    margin-right: 10px; 
+    text-align: center; 
+    background-color: white; 
+    color: rgba(0, 0, 0, 0.82);
+    border: solid 2px gray;
+}
+
+.contenedor-sucursales button:hover{
+    background-image: linear-gradient(#ffffff, lightgray);
+}
+
+.contenedor-autos {
+    padding: 10px 35px;
+}
+
+.close {
     color: rgba(255, 255, 255, 0.507);
     margin-right: 12px;
 }
-.close:hover{
+
+.close:hover {
     color: rgba(255, 255, 255, 0.907);
 }
 
-.edit{
+.edit {
     opacity: 0.5;
     padding-top: 5px;
     margin-right: 8px;
 }
-.edit:hover{
+
+.edit:hover {
     opacity: 1;
 }
 </style>

@@ -133,7 +133,7 @@ export default{
     <AlertModal ref="alertModal"/>
     <div style="padding: 15px 15px;">
         <div style="display:flex; align-items: center; margin-bottom: 15px;">
-            <button @click="solicitarAuto" class="boton blanco con-borde">Solicitar auto</button> <v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon>
+            <button @click="solicitarAuto" class="boton blanco con-borde">Solicitar auto</button><div><p style="font-size:x-small; text-align: center;">Filtro</p><v-icon @click="toggleFiltroVentana()" class="filtro">mdi-filter</v-icon></div>
         </div>
         <v-fade-transition>
         <div style="background-color: #aedddd; color: black; padding: 20px; border: 2px solid white; border-radius: 20px;" v-if="autoSolicitado != undefined">
@@ -231,9 +231,6 @@ export default{
   }
 
 .boton:hover {
-    background-color: #343f46 !important;
-    color: white !important;
-    border-width: 2px !important;
-    border-color: white !important;
-  }
+    background-image: linear-gradient(#36454F, #4d6270);
+}
 </style>

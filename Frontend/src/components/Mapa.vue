@@ -43,9 +43,9 @@ export default {
             //this.$refs.view.setCenter(event.target.getPosition());
             //this.puntoSolicitud = event.target.getPosition();
         },
-        async handleMapClick (event) {
-            if(store.modoInteraccion != undefined){
-                return 
+        async handleMapClick(event) {
+            if (store.modoInteraccion != undefined) {
+                return
             }
 
             const ubicacion = store.mapReference.getCoordinateFromPixel(event.pixel);
@@ -61,27 +61,27 @@ export default {
                 'VERSION=1.1.0&' +
                 'REQUEST=GetFeatureInfo&' +
                 'TYPENAME=tsige:auto&' +
-                'LAYERS=tsige:auto&'+
+                'LAYERS=tsige:auto&' +
                 'INFO_FORMAT=application/json&' +
                 'SRSNAME=EPSG:32721&' +
-                'BBOX='+store.mapReference.getView().calculateExtent().join(',') + '&' +
-                'WIDTH='+store.mapReference.getSize()[0]+ '&' +
-                'HEIGHT='+store.mapReference.getSize()[1]+ '&' +
+                'BBOX=' + store.mapReference.getView().calculateExtent().join(',') + '&' +
+                'WIDTH=' + store.mapReference.getSize()[0] + '&' +
+                'HEIGHT=' + store.mapReference.getSize()[1] + '&' +
                 'QUERY_LAYERS=tsige:auto&' +
                 `X=${x}&` +
                 `Y=${y}&`;
 
-                const urlSucursal = 'http://localhost:8080/geoserver/wms' +
+            const urlSucursal = 'http://localhost:8080/geoserver/wms' +
                 '?SERVICE=WMS&' +
                 'VERSION=1.1.0&' +
                 'REQUEST=GetFeatureInfo&' +
                 'TYPENAME=tsige:sucursal&' +
-                'LAYERS=tsige:sucursal&'+
+                'LAYERS=tsige:sucursal&' +
                 'INFO_FORMAT=application/json&' +
                 'SRSNAME=EPSG:32721&' +
-                'BBOX='+store.mapReference.getView().calculateExtent().join(',') + '&' +
-                'WIDTH='+store.mapReference.getSize()[0]+ '&' +
-                'HEIGHT='+store.mapReference.getSize()[1]+ '&' +
+                'BBOX=' + store.mapReference.getView().calculateExtent().join(',') + '&' +
+                'WIDTH=' + store.mapReference.getSize()[0] + '&' +
+                'HEIGHT=' + store.mapReference.getSize()[1] + '&' +
                 'QUERY_LAYERS=tsige:sucursal&' +
                 `X=${x}&` +
                 `Y=${y}&`;
@@ -89,9 +89,9 @@ export default {
 
             Promise.all([fetch(urlAuto), fetch(urlSucursal)])
                 .then(responses => Promise.all(responses.map(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
-                }
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text) });
+                    }
                     return response.json();
                 })))
                 .then(async dataArray => {
@@ -104,34 +104,42 @@ export default {
                     if (featuresAuto && featuresAuto.length > 0) {
                         this.selectedFeature = featuresAuto[0]; // Aquí guardamos el primer feature de autos
 
-                        const response = await axios.get('/api/automotora/'+featuresAuto[0].properties.automotora_id)
-                        .then(function (response) {
-                            this.store.contenidoInfo = {tipo: "Auto",
-                                                        contenido: this.selectedFeature,
-                                                        automotora: response.data};     
-                        }.bind(this))
-                        .catch(function (error) {
-                            console.log("Error: " + error.response.data);
-                            this.store.contenidoInfo = {tipo: "Error",
-                                                        contenido: "No se pudieron conseguir los datos"};
-                        }.bind(this));
-                                           
-                    } else if(featuresSucursal && featuresSucursal.length > 0) {
+                        const response = await axios.get('/api/automotora/' + featuresAuto[0].properties.automotora_id)
+                            .then(function (response) {
+                                this.store.contenidoInfo = {
+                                    tipo: "Auto",
+                                    contenido: this.selectedFeature,
+                                    automotora: response.data
+                                };
+                            }.bind(this))
+                            .catch(function (error) {
+                                console.log("Error: " + error.response.data);
+                                this.store.contenidoInfo = {
+                                    tipo: "Error",
+                                    contenido: "No se pudieron conseguir los datos"
+                                };
+                            }.bind(this));
+
+                    } else if (featuresSucursal && featuresSucursal.length > 0) {
 
                         this.selectedFeature = featuresSucursal[0];  // Aquí guardamos el primer feature de sucursales
 
-                        const response = await axios.get('/api/automotora/'+featuresSucursal[0].properties.automotora_id)
-                        .then(function (response) {
-                            this.store.contenidoInfo = {tipo: "Automotora",
-                                                        contenido: response.data,
-                                                        sucursal: featuresSucursal[0]};
-                        }.bind(this))
-                        .catch(function (error) {
-                            console.log("Error: " + error.response.data);
-                            this.store.contenidoInfo = {tipo: "Error",
-                                                        contenido: "No se pudieron conseguir los datos"};
-                        }.bind(this));
-                    }else{
+                        const response = await axios.get('/api/automotora/' + featuresSucursal[0].properties.automotora_id)
+                            .then(function (response) {
+                                this.store.contenidoInfo = {
+                                    tipo: "Automotora",
+                                    contenido: response.data,
+                                    sucursal: featuresSucursal[0]
+                                };
+                            }.bind(this))
+                            .catch(function (error) {
+                                console.log("Error: " + error.response.data);
+                                this.store.contenidoInfo = {
+                                    tipo: "Error",
+                                    contenido: "No se pudieron conseguir los datos"
+                                };
+                            }.bind(this));
+                    } else {
                         this.store.contenidoInfo = undefined
                         this.store.ubicacionInfo = undefined
                         this.selectedFeature = null;
@@ -140,10 +148,10 @@ export default {
                 .catch(error => {
                     console.error("Error fetching WFS GetFeatureInfo:", error);
                 });
-    },
-    closeModal() {
-      this.selectedFeature = null;
-    }
+        },
+        closeModal() {
+            this.selectedFeature = null;
+        }
     },
     mounted() {
         this.store.primeraVez = true
@@ -159,7 +167,7 @@ export default {
         } else {
             store.modoInteraccion = undefined
             store.autosSucursalCercanos()
-            if(this.store.currentGeolocation.length != 0){
+            if (this.store.currentGeolocation.length != 0) {
                 this.store.currentGeolocation = this.store.currentGeolocation
             }
         }
@@ -173,6 +181,25 @@ export default {
                 return "#26A099"
             } else {
                 return "#36454F"
+            }
+        },
+        tipoUsuario() {
+            if (this.store.tipoUsuario == "anonimo") {
+                return {
+                    width: '275px',
+                    borderRadius: '25px',
+                    border: '2px solid rgba(0, 0, 0, 0.388)',
+                    backgroundColor: '#26A099',
+                    color: 'white'
+                };
+            } else {
+                return {
+                    width: '275px',
+                    borderRadius: '25px',
+                    border: '2px solid rgba(0, 0, 0, 0.388)',
+                    backgroundColor: '#36454F',
+                    color: 'white'
+                };
             }
         }
     }
@@ -202,12 +229,12 @@ export default {
                 </div>
             </div>
             <div class="barra-y-boton">
-                <div v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino'"
-                    style="height: 20px;">
+                <div
+                    v-show="store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino'">
                     <v-expansion-panels>
                         <v-expansion-panel
                             :title="store.tipoUsuario == 'anonimo' ? 'Cambiar punto de solicitud' : 'Búsqueda rápida'"
-                            style="width: 275px;">
+                            :style="tipoUsuario">
                             <v-expansion-panel-text>
                                 <BusquedaEspecifica />
                             </v-expansion-panel-text>
@@ -215,27 +242,30 @@ export default {
                     </v-expansion-panels>
                 </div>
 
-                <BotonCircular
-                    v-show="store.tipoUsuario == 'anonimo' && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino')"
-                    @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario">
-                    <locationTarget />
-                </BotonCircular>
-
-                <v-btn-toggle v-if="store.tipoUsuario == 'anonimo' && !store.mapaCompleto" rounded="xl" density="comfortable"
-                    v-model="store.modoInteraccion"
-                    style="margin-top: 3px; margin-left: 10px; border-color: rgba(0, 0, 0, 0.387); border-width: 2px; border-style: solid;">
-                    <v-btn disabled icon="mdi-map-marker" style="border-right-style: solid;border-right-width: 2px;border-right-color: #858585;"></v-btn>
+                <v-btn-toggle v-if="store.tipoUsuario == 'anonimo' && !store.mapaCompleto" rounded="xl"
+                    density="comfortable" v-model="store.modoInteraccion"
+                    style="margin-top: 3px; margin-left: 10px; border: 2px solid rgba(0, 0, 0, 0.387); height: 50px">
+                    <v-btn disabled icon="mdi-map-marker"
+                        style="border-right-style: solid; border-right-width: 2px; border-right-color: #858585; background-color: white;"></v-btn>
                     <v-btn autofocus class="btn-sol" value="punto-solicitud"
                         style="text-transform: none; padding: 5px; border-right: 2px solid rgba(0, 0, 0, 0.387);">Solicitud</v-btn>
                     <v-btn class="btn-des" value="punto-destino"
                         style="text-transform: none; padding: 5px; padding-right: 10px;">Destino</v-btn>
                 </v-btn-toggle>
             </div>
+            <div>
+                <BotonCircular
+                    v-show="store.tipoUsuario == 'anonimo' && (store.modoInteraccion == 'punto-solicitud' || store.modoInteraccion == undefined || store.modoInteraccion == 'punto-destino')"
+                    @click="store.usarUbicacion()" class="boton-ubicacion" :color="obtenerColorUsuario">
+                    <locationTarget />
+                </BotonCircular>
+                <BotonCircular v-show="store.tipoUsuario == 'anonimo'" @click="store.iniciarBusquedaPoligono()"
+                    class="boton-poligono" :color="obtenerColorUsuario">
+                    <poligono />
+                </BotonCircular>
+            </div>
 
-            <BotonCircular v-show="store.tipoUsuario == 'anonimo'" @click="store.iniciarBusquedaPoligono()"
-                class="boton-poligono" :color="obtenerColorUsuario">
-                <poligono />
-            </BotonCircular>
+
         </div>
 
         <ol-view ref="view" :center="store.center" :rotation="store.rotation" :zoom="store.zoom"
@@ -285,8 +315,7 @@ export default {
         </ol-geolocation>
 
         <!--Punto de solicitud -->
-        <ol-vector-layer :zIndex="1009"
-            v-if="store.puntoSolicitud != undefined && store.tipoUsuario == 'anonimo'">
+        <ol-vector-layer :zIndex="1009" v-if="store.puntoSolicitud != undefined && store.tipoUsuario == 'anonimo'">
             <ol-source-vector>
                 <ol-feature ref="posicionSolicitud">
                     <ol-geom-point :coordinates="store.puntoSolicitud"></ol-geom-point>
@@ -299,8 +328,7 @@ export default {
         </ol-vector-layer>
 
         <!--Punto de destino -->
-        <ol-vector-layer :zIndex="1009"
-            v-if="store.puntoDestino != undefined && store.tipoUsuario == 'anonimo'">
+        <ol-vector-layer :zIndex="1009" v-if="store.puntoDestino != undefined && store.tipoUsuario == 'anonimo'">
             <ol-source-vector>
                 <ol-feature ref="posicionDestino">
                     <ol-geom-point :coordinates="store.puntoDestino"></ol-geom-point>
@@ -313,8 +341,7 @@ export default {
         </ol-vector-layer>
 
         <!--Punto de levante -->
-        <ol-vector-layer :zIndex="1009"
-            v-if="store.puntoLevante != undefined && store.tipoUsuario == 'anonimo'">
+        <ol-vector-layer :zIndex="1009" v-if="store.puntoLevante != undefined && store.tipoUsuario == 'anonimo'">
             <ol-source-vector>
                 <ol-feature ref="posicionLevante">
                     <ol-geom-point :coordinates="store.puntoLevante"></ol-geom-point>
@@ -326,44 +353,45 @@ export default {
             </ol-source-vector>
         </ol-vector-layer>
 
-        <ol-overlay
-        v-if="store.ubicacionInfo != undefined && store.modoInteraccion == undefined"
-        :position="store.ubicacionInfo"
-        :offset="[0, 15]"
-        positioning="top-center"
-        >
+        <ol-overlay v-if="store.ubicacionInfo != undefined && store.modoInteraccion == undefined"
+            :position="store.ubicacionInfo" :offset="[0, 15]" positioning="top-center">
             <div class="click-info">
                 <p v-if="store.contenidoInfo == undefined"> Cargando... </p>
                 <div v-else>
-                    <v-icon style="margin-top: -5px;">{{ store.contenidoInfo.tipo == "Automotora" ? 'mdi-office-building' : store.contenidoInfo.tipo == "Auto" ? 'mdi-car-side' : ""}}</v-icon>
+                    <v-icon style="margin-top: -5px;">{{ store.contenidoInfo.tipo == "Automotora" ?
+                        'mdi-office-building' :
+                        store.contenidoInfo.tipo == "Auto" ? 'mdi-car-side' : "" }}</v-icon>
                     <p style="font-weight: 600; font-size: 20px; display:inline; margin-left: 5px;">
-                        {{ store.contenidoInfo.tipo == "Automotora" ? 
-                                store.contenidoInfo.contenido.nombre + " - " 
-                                + store.contenidoInfo.sucursal.properties.nombre 
+                        {{ store.contenidoInfo.tipo == "Automotora" ?
+                            store.contenidoInfo.contenido.nombre + " - "
+                            + store.contenidoInfo.sucursal.properties.nombre
                             : store.contenidoInfo.tipo == "Auto" ?
-                                store.contenidoInfo.automotora.nombre + " - " 
+                                store.contenidoInfo.automotora.nombre + " - "
                                 + store.contenidoInfo.contenido.id.split(".")[1]
-                            : "Error"
+                                : "Error"
                         }}
                     </p>
+                    <v-divider style="margin-bottom: 10px; margin-top: " />
                     <div v-if="store.contenidoInfo.tipo == 'Automotora'">
                         <p>{{ store.contenidoInfo.contenido.cantSucursales }} sucursales</p>
                         <p>{{ store.contenidoInfo.contenido.cantAutosTotal }} autos</p>
                         <div style="margin-left: 10px;">
                             <p>{{ store.contenidoInfo.contenido.cantAutosComb }} a combustión</p>
-                            <p>{{ store.contenidoInfo.contenido.cantAutosElec }} eléctrico{{ store.contenidoInfo.contenido.cantAutosElec != 1 ? "s" : ""}}</p>
+                            <p>{{ store.contenidoInfo.contenido.cantAutosElec }} eléctrico{{
+                                store.contenidoInfo.contenido.cantAutosElec != 1 ? "s" : "" }}</p>
                         </div>
-                        
+
                     </div>
                     <div v-if="store.contenidoInfo.tipo == 'Auto'">
-                        <p>Tipo: {{ store.contenidoInfo.contenido.properties.electrico ? 'Eléctrico' : 'Combustión' }}</p>
+                        <p>Tipo: {{ store.contenidoInfo.contenido.properties.electrico ? 'Eléctrico' : 'Combustión' }}
+                        </p>
                         <p>Distancia máxima de desvío: {{ store.contenidoInfo.contenido.properties.dist_max }}m</p>
                     </div>
                     <div v-if="store.contenidoInfo.tipo == 'Error'">
                         <p>{{ store.contenidoInfo }}</p>
                     </div>
                 </div>
-                
+
             </div>
         </ol-overlay>
 
@@ -411,23 +439,25 @@ export default {
 .ol-zoom-in {
     background-color: v-bind(obtenerColorUsuario) !important;
     color: white !important;
+    border: 2px solid rgba(0, 0, 0, 0.387) !important;
 }
 
 .ol-zoom-out {
     background-color: v-bind(obtenerColorUsuario) !important;
     color: white !important;
+    border: 2px solid rgba(0, 0, 0, 0.387) !important;
 }
 
 .overlay {
     position: absolute;
-    z-index:1;
+    z-index: 1;
     display: flex;
     width: 100%;
     justify-content: space-between;
     pointer-events: none;
 }
 
-.overlay > *{
+.overlay>* {
     pointer-events: all;
 }
 
@@ -456,7 +486,7 @@ export default {
 
 .btn-des {
     color: #26a09a !important;
-    background-color:#dffafa !important;
+    background-color: #dffafa !important;
 }
 
 .btn-sol {
@@ -476,17 +506,17 @@ export default {
     color: white !important;
 }
 
-.btn-sol.v-btn--active{
+.btn-sol.v-btn--active {
     background-color: #FF3A69 !important;
     color: white !important;
 }
 
-.btn-des.v-btn--active{
+.btn-des.v-btn--active {
     background-color: #26A099 !important;
     color: white !important;
 }
 
-.ayuda-interaccion{
+.ayuda-interaccion {
     background-color: white;
     color: #000000c4;
     padding: 10px 15px;
@@ -502,14 +532,15 @@ export default {
     margin: 10px;
 }
 
-.click-info{
+.click-info {
     background-color: white;
     padding: 10px;
     border-radius: 15px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border: 2px solid rgba(0, 0, 0, 0.5);
 }
 
-.click-info:hover{
+.click-info:hover {
     opacity: 0.5;
     transition: opacity 0.25s;
 }

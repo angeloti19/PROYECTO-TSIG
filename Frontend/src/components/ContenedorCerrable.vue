@@ -37,9 +37,8 @@ export default {
 <style scoped>
 .contenedor {
 
-    border-radius: 6px;
-    border-color: #8A8A8A;
-    border-width: 1px;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.5); 
     max-width: 562px;
     min-width: 400px;
     margin: auto;
