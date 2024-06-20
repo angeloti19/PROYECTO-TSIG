@@ -12,11 +12,8 @@ export default {
       store,
       username: '',
       password: '',
-      correo: '',
-      role: 1, // 1 = ROLE_ADMIN
       message: '',
       isLoading: false,
-      isSignUp: false,
       isError: false
     }
   },
@@ -75,36 +72,6 @@ export default {
         }
         this.isError = true;
       }
-    },
-    async registrarse() {
-      try {
-        const response = await axios.post('/auth/register', {
-          username: this.username,
-          correo: this.correo,
-          password: this.password,
-          role: this.role
-        });
-        this.message = response.data.message;
-        this.isSignUp = false;
-        this.isError = false;
-        console.log('El usuario se registró correctamente!');
-        console.log('Rol -> ' + this.role);
-      } catch (error) {
-        if (error.response && error.response.data) {
-          this.message = error.response.data.message;
-        } else {
-          this.message = 'An error occurred. Please try again.';
-        }
-        this.isError = true;
-      }
-    },
-    toggleForm() {
-      this.isSignUp = !this.isSignUp;
-      // Clear the form fields when switching
-      this.username = '';
-      this.password = '';
-      this.correo = '';
-      this.message = '';
     }
   },
 }
@@ -112,15 +79,12 @@ export default {
 
 <template>
   <div style="padding: 15px 15px;">
-    <p v-if="!isSignUp">
+    <p>
       Si usted es un administrador, puede ingresar aquí.
-    </p>
-    <p v-if="isSignUp">
-      Por favor, complete el formulario para registrarse.
     </p>
     <p :class="messageClass">{{ message }}</p>
 
-    <form v-if="!isSignUp" @submit.prevent="iniciarSesion">
+    <form @submit.prevent="iniciarSesion">
       <div class="contenedor-formulario">
         <label for="username">Usuario</label>
         <input type="text" v-model="username" placeholder="Usuario" required>
@@ -129,23 +93,6 @@ export default {
       </div>
       <div class="contenedor-botones">
         <button type="submit" class="boton">Iniciar sesión</button>
-        <button type="button" @click="toggleForm" class="boton">Registrarse</button>
-      </div>
-    </form>
-
-    <form v-if="isSignUp" @submit.prevent="registrarse">
-      <h4>{{ store.role }}</h4>
-      <div class="contenedor-formulario">
-        <label for="username">Usuario</label>
-        <input type="text" v-model="username" placeholder="Usuario" required>
-        <label for="password">Contraseña</label>
-        <input type="password" v-model="password" placeholder="Contraseña" required>
-        <label for="Email">Email</label>
-        <input type="email" v-model="correo" placeholder="Email" required>
-      </div>
-      <div class="contenedor-botones">
-        <button type="submit" class="boton">Registrarse</button>
-        <button type="button" @click="toggleForm" class="boton">Cancelar</button>
       </div>
     </form>
   </div>
